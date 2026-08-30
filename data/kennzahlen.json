@@ -1,0 +1,1252 @@
+{
+ "erzeugt_utc": "2026-08-30T09:13:51Z",
+ "datenstand": "2026-08-29T23:57:08Z",
+ "hinweis": "Uebergabe von Stufe 1 an die Kommentar-Routine. Alle Zahlen sind fertig gerechnet und duerfen nicht neu berechnet werden.",
+ "charts": [
+  {
+   "id": "eurusd",
+   "titel": "EUR/USD",
+   "gruppe": "geldpolitik",
+   "einheit": "USD je EUR",
+   "was_der_indikator_misst": "Der Wechselkurs ist der sichtbarste Preis fuer den Zinsunterschied zwischen Fed und EZB: Er verschiebt Exportgewinne, importierte Inflation und die Rendite jedes nicht abgesicherten Auslandsinvestments.",
+   "bekannte_schwaeche": null,
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "EUR/USD",
+     "status": "ok",
+     "stand": "2026-08-21",
+     "wert": 1.168,
+     "frequenz": "taeglich",
+     "aenderung_woche": 0.01,
+     "aenderung_monat": 0.027,
+     "aenderung_quartal": 0.008,
+     "aenderung_jahr": 0.008,
+     "perzentil_10j": 74.9,
+     "min_10j": 0.962,
+     "max_10j": 1.249,
+     "mittel_10j": 1.124
+    }
+   ]
+  },
+  {
+   "id": "leitzinsen",
+   "titel": "Leitzinsen der Notenbanken",
+   "gruppe": "geldpolitik",
+   "einheit": "% p. a.",
+   "was_der_indikator_misst": "Der geldpolitische Beschluss selbst - bei der Fed das Zielband fuer den Tagesgeldsatz, bei der EZB der Hauptrefinanzierungssatz, zu dem sich Banken woechentlich Geld leihen, und bei der Bank of Japan der Zielsatz fuer unbesichertes Tagesgeld.",
+   "bekannte_schwaeche": "Die erste Zinssenkung wird gern als Kaufsignal gelesen, war historisch aber oft das Gegenteil: gesenkt wird, weil etwas bricht. Die Senkungszyklen 2001 und 2007 begannen jeweils vor den schwersten Kursverlusten.",
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "Fed-Zielband, Obergrenze",
+     "status": "ok",
+     "stand": "2026-08-29",
+     "wert": 3.75,
+     "frequenz": "taeglich",
+     "aenderung_woche": 0.0,
+     "aenderung_monat": 0.0,
+     "aenderung_quartal": 0.0,
+     "aenderung_jahr": -0.75,
+     "perzentil_10j": 61.8,
+     "min_10j": 0.25,
+     "max_10j": 5.5,
+     "mittel_10j": 2.547
+    },
+    {
+     "name": "Fed-Zielband, Untergrenze",
+     "status": "ok",
+     "stand": "2026-08-29",
+     "wert": 3.5,
+     "frequenz": "taeglich",
+     "aenderung_woche": 0.0,
+     "aenderung_monat": 0.0,
+     "aenderung_quartal": 0.0,
+     "aenderung_jahr": -0.75,
+     "perzentil_10j": 61.8,
+     "min_10j": 0.0,
+     "max_10j": 5.25,
+     "mittel_10j": 2.297
+    },
+    {
+     "name": "EZB-Hauptrefinanzierungssatz",
+     "status": "ok",
+     "stand": "2026-08-28",
+     "wert": 2.4,
+     "frequenz": "taeglich",
+     "aenderung_woche": 0.0,
+     "aenderung_monat": 0.0,
+     "aenderung_quartal": 0.25,
+     "aenderung_jahr": 0.25,
+     "perzentil_10j": 73.3,
+     "min_10j": 0.0,
+     "max_10j": 4.5,
+     "mittel_10j": 1.239
+    },
+    {
+     "name": "BoJ-Tagesgeldsatz",
+     "status": "ok",
+     "stand": "2026-06-01",
+     "wert": 0.841,
+     "frequenz": "monatlich",
+     "aenderung_woche": 0.114,
+     "aenderung_monat": 0.114,
+     "aenderung_quartal": 0.113,
+     "aenderung_jahr": 0.364,
+     "perzentil_10j": 99.2,
+     "min_10j": -0.071,
+     "max_10j": 0.841,
+     "mittel_10j": 0.065
+    }
+   ]
+  },
+  {
+   "id": "fedfunds_einlagesatz",
+   "titel": "Fed Funds Rate und EZB-Einlagesatz",
+   "gruppe": "geldpolitik",
+   "einheit": "% p. a.",
+   "was_der_indikator_misst": "Die beiden Saetze, an denen sich der Geldmarkt tatsaechlich orientiert: die Effective Fed Funds Rate ist der real gehandelte Tagesgeldsatz innerhalb des Fed-Zielbands, der EZB-Einlagesatz die Verzinsung ueberschuessiger Bankreserven und damit der Anker fuer Tagesgeld- und Sparzinsen im Euroraum.",
+   "bekannte_schwaeche": null,
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "Effective Fed Funds Rate",
+     "status": "ok",
+     "stand": "2026-08-27",
+     "wert": 3.63,
+     "frequenz": "taeglich",
+     "aenderung_woche": 0.0,
+     "aenderung_monat": 0.0,
+     "aenderung_quartal": 0.01,
+     "aenderung_jahr": -0.7,
+     "perzentil_10j": 62.8,
+     "min_10j": 0.04,
+     "max_10j": 5.33,
+     "mittel_10j": 2.401
+    },
+    {
+     "name": "EZB-Einlagesatz",
+     "status": "ok",
+     "stand": "2026-08-28",
+     "wert": 2.25,
+     "frequenz": "taeglich",
+     "aenderung_woche": 0.0,
+     "aenderung_monat": 0.0,
+     "aenderung_quartal": 0.25,
+     "aenderung_jahr": 0.25,
+     "perzentil_10j": 74.6,
+     "min_10j": -0.5,
+     "max_10j": 4.0,
+     "mittel_10j": 0.838
+    }
+   ]
+  },
+  {
+   "id": "realzins",
+   "titel": "Realzins USA und Euroraum",
+   "gruppe": "geldpolitik",
+   "einheit": "Prozentpunkte",
+   "was_der_indikator_misst": "Aussagekraeftiger als der Nominalzins ist der Realzins - Leitzins minus Inflation: Liegt er ueber dem neutralen Zins, bremst die Geldpolitik die Wirtschaft, liegt er darunter, befeuert sie sie.",
+   "bekannte_schwaeche": null,
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "Realzins USA",
+     "status": "ok",
+     "stand": "2026-08-27",
+     "wert": 1.163,
+     "frequenz": "taeglich",
+     "aenderung_woche": 0.0,
+     "aenderung_monat": 0.0,
+     "aenderung_quartal": 0.366,
+     "aenderung_jahr": -0.055,
+     "perzentil_10j": 77.5,
+     "min_10j": -6.402,
+     "max_10j": 2.1,
+     "mittel_10j": -0.72
+    },
+    {
+     "name": "Realzins Euroraum",
+     "status": "ok",
+     "stand": "2026-08-28",
+     "wert": -0.044,
+     "frequenz": "taeglich",
+     "aenderung_woche": 0.0,
+     "aenderung_monat": 0.0,
+     "aenderung_quartal": 0.25,
+     "aenderung_jahr": 0.229,
+     "perzentil_10j": 83.0,
+     "min_10j": -4.752,
+     "max_10j": 1.342,
+     "mittel_10j": -1.278
+    }
+   ]
+  },
+  {
+   "id": "zinspfad",
+   "titel": "Erwarteter Zinspfad",
+   "gruppe": "geldpolitik",
+   "einheit": "% p. a.",
+   "was_der_indikator_misst": "Was der Markt an kuenftigen Zinsschritten bereits eingepreist hat - abgelesen am Abstand zwischen kurzen und mittleren Laufzeiten, der die erwartete durchschnittliche Tagesgeldverzinsung der kommenden Jahre enthaelt.",
+   "bekannte_schwaeche": "Ersatzkonstruktion. Fed-Funds-Futures und OeSTR-Forwards selbst sind lizenzpflichtige CME- und Eurex-Daten. Der hier gezeigte Forward-Pfad aus der Staatsanleihekurve trifft dieselbe Aussage, enthaelt aber zusaetzlich eine Laufzeitpraemie und ist deshalb nicht deckungsgleich mit den Futures.",
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "USA, erwarteter Satz in einem Jahr",
+     "status": "ok",
+     "stand": "2026-08-27",
+     "wert": 4.36,
+     "frequenz": "taeglich",
+     "aenderung_woche": -0.03,
+     "aenderung_monat": -0.07,
+     "aenderung_quartal": 0.18,
+     "aenderung_jahr": 1.01,
+     "perzentil_10j": 91.1,
+     "min_10j": 0.08,
+     "max_10j": 4.911,
+     "mittel_10j": 2.509
+    },
+    {
+     "name": "Euroraum, erwarteter Satz in einem Jahr",
+     "status": "ok",
+     "stand": "2026-08-27",
+     "wert": 2.898,
+     "frequenz": "taeglich",
+     "aenderung_woche": -0.016,
+     "aenderung_monat": 0.091,
+     "aenderung_quartal": 0.273,
+     "aenderung_jahr": 0.969,
+     "perzentil_10j": 99.2,
+     "min_10j": -1.044,
+     "max_10j": 3.158,
+     "mittel_10j": 0.556
+    }
+   ]
+  },
+  {
+   "id": "geldmenge",
+   "titel": "Geldmenge M2 (USA) und M3 (Euroraum)",
+   "gruppe": "geldpolitik",
+   "einheit": "% gegenueber Vorjahr",
+   "was_der_indikator_misst": "Die Jahresveraenderungsrate der breiten Geldmenge zeigt, ob dem Wirtschaftskreislauf Kaufkraft zugefuehrt oder entzogen wird - ein Schrumpfen ist historisch selten und fiel zuletzt 2022/23 mit dem Stress bei US-Regionalbanken zusammen.",
+   "bekannte_schwaeche": "Der Zusammenhang zwischen Geldmenge und Aktienkursen ist locker und instabil, nicht mechanisch.",
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "M2 USA",
+     "status": "ok",
+     "stand": "2026-07-01",
+     "wert": 5.414,
+     "frequenz": "monatlich",
+     "aenderung_woche": 0.07,
+     "aenderung_monat": 0.07,
+     "aenderung_quartal": 0.886,
+     "aenderung_jahr": 1.022,
+     "perzentil_10j": 59.5,
+     "min_10j": -4.64,
+     "max_10j": 26.778,
+     "mittel_10j": 6.296
+    },
+    {
+     "name": "M3 Euroraum",
+     "status": "ok",
+     "stand": "2026-07-01",
+     "wert": 4.046,
+     "frequenz": "monatlich",
+     "aenderung_woche": 0.001,
+     "aenderung_monat": 0.001,
+     "aenderung_quartal": 0.7,
+     "aenderung_jahr": 0.639,
+     "perzentil_10j": 37.2,
+     "min_10j": -1.279,
+     "max_10j": 11.704,
+     "mittel_10j": 4.741
+    }
+   ]
+  },
+  {
+   "id": "zentralbankbilanz",
+   "titel": "Zentralbankbilanzen - Anleihekaeufe und Bilanzabbau",
+   "gruppe": "geldpolitik",
+   "einheit": "Bilanzsumme, indexiert auf 100",
+   "was_der_indikator_misst": "Anleihekaeufe (QE) schaffen Bankreserven, Bilanzabbau (QT) zieht sie wieder ab - beides ist dieselbe Zeitreihe in zwei Phasen, und ihre Steigung ist der eigentliche Liquiditaetsimpuls.",
+   "bekannte_schwaeche": null,
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "Fed-Bilanzsumme",
+     "status": "ok",
+     "stand": "2026-08-26",
+     "wert": 6730912.0,
+     "frequenz": "woechentlich",
+     "aenderung_woche": -14787.0,
+     "aenderung_monat": -16466.0,
+     "aenderung_quartal": 26529.0,
+     "aenderung_jahr": 112497.0,
+     "perzentil_10j": 49.2,
+     "min_10j": 3759946.0,
+     "max_10j": 8965487.0,
+     "mittel_10j": 6403136.552
+    },
+    {
+     "name": "Eurosystem-Bilanzsumme",
+     "status": "ok",
+     "stand": "2026-08-23",
+     "wert": 5913041.0,
+     "frequenz": "woechentlich",
+     "aenderung_woche": -14266.0,
+     "aenderung_monat": -36036.0,
+     "aenderung_quartal": -273467.0,
+     "aenderung_jahr": -165886.0,
+     "perzentil_10j": 38.3,
+     "min_10j": 3330487.0,
+     "max_10j": 8835987.0,
+     "mittel_10j": 6125537.746
+    }
+   ]
+  },
+  {
+   "id": "zinskurve",
+   "titel": "Zinskurven-Spread USA und Eurozone",
+   "gruppe": "geldpolitik",
+   "einheit": "Prozentpunkte",
+   "was_der_indikator_misst": "Die Differenz zwischen zehn- und zweijaehrigen Staatsanleiherenditen; wird sie negativ, erwartet der Markt, dass die Notenbank die Zinsen bald senken muss - also dass die Wirtschaft kippt.",
+   "bekannte_schwaeche": "Der lange Vorlauf von sechs bis vierundzwanzig Monaten ist als Timing-Instrument fast wertlos; 2022 bis 2024 war die US-Kurve ueber zwanzig Monate invertiert, ohne dass eine Rezession folgte. Der eigentliche Alarm ist nicht die Inversion, sondern die anschliessende Versteilerung.",
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "USA, 10J minus 2J",
+     "status": "ok",
+     "stand": "2026-08-28",
+     "wert": 0.39,
+     "frequenz": "taeglich",
+     "aenderung_woche": -0.11,
+     "aenderung_monat": -0.06,
+     "aenderung_quartal": -0.08,
+     "aenderung_jahr": -0.21,
+     "perzentil_10j": 49.2,
+     "min_10j": -1.08,
+     "max_10j": 1.59,
+     "mittel_10j": 0.352
+    },
+    {
+     "name": "Eurozone, 10J-Bund minus 2J-Schatz",
+     "status": "ok",
+     "stand": "2026-08-27",
+     "wert": 0.492,
+     "frequenz": "taeglich",
+     "aenderung_woche": 0.004,
+     "aenderung_monat": 0.042,
+     "aenderung_quartal": -0.017,
+     "aenderung_jahr": -0.397,
+     "perzentil_10j": 47.9,
+     "min_10j": -0.644,
+     "max_10j": 1.359,
+     "mittel_10j": 0.507
+    }
+   ]
+  },
+  {
+   "id": "kreditimpuls_china",
+   "titel": "Chinesischer Kreditimpuls",
+   "gruppe": "geldpolitik",
+   "einheit": "Prozentpunkte des BIP",
+   "was_der_indikator_misst": "Die Veraenderung der Neukreditvergabe im Verhaeltnis zum BIP laeuft globalen Industrie- und Rohstoffzyklen typischerweise zwei bis drei Quartale voraus - besonders relevant fuer europaeische Industriewerte.",
+   "bekannte_schwaeche": "Ersatzkonstruktion. Die offizielle Kennzahl beruht auf der Total Social Financing der PBoC, fuer die es keine freie Schnittstelle gibt. Gerechnet wird hier aus den BIS-Daten zur Gesamtverschuldung des privaten Nichtfinanzsektors - dieselbe Logik, aber quartalsweise und mit Meldeverzug.",
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "Kreditimpuls China",
+     "status": "ok",
+     "stand": "2025-10-01",
+     "wert": 14664.456,
+     "frequenz": "quartalsweise",
+     "aenderung_woche": -37.705,
+     "aenderung_monat": -37.705,
+     "aenderung_quartal": -37.705,
+     "aenderung_jahr": -2185.195,
+     "perzentil_10j": 31.7,
+     "min_10j": 10855.315,
+     "max_10j": 19578.666,
+     "mittel_10j": 15522.831
+    }
+   ]
+  },
+  {
+   "id": "kreditstandards",
+   "titel": "Kreditvergabestandards der Banken",
+   "gruppe": "liquiditaet",
+   "einheit": "Nettoanteil verschaerfender Banken in %",
+   "was_der_indikator_misst": "Der Nettoanteil der Banken, die ihre Kreditvergabestandards verschaerft haben, ist einer der besten Fruehindikatoren ueberhaupt, weil er genau die Stelle misst, an der Geldpolitik in die Realwirtschaft uebertritt.",
+   "bekannte_schwaeche": "Nur vierteljaehrlich und mit Meldeverzug; die Umfrage sagt, was Banken angeben zu tun, nicht was sie tun. Private Credit waechst ausserhalb dieser Erhebung.",
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "USA (SLOOS, Unternehmenskredite)",
+     "status": "ok",
+     "stand": "2026-07-01",
+     "wert": 0.0,
+     "frequenz": "quartalsweise",
+     "aenderung_woche": -8.1,
+     "aenderung_monat": -8.1,
+     "aenderung_quartal": -8.1,
+     "aenderung_jahr": -9.5,
+     "perzentil_10j": 34.1,
+     "min_10j": -32.4,
+     "max_10j": 71.2,
+     "mittel_10j": 8.522
+    },
+    {
+     "name": "Euroraum (EZB Bank Lending Survey)",
+     "status": "ok",
+     "stand": "2026-08-30",
+     "wert": 4.097,
+     "frequenz": "quartalsweise",
+     "aenderung_woche": 4.097,
+     "aenderung_monat": 4.097,
+     "aenderung_quartal": 3.227,
+     "aenderung_jahr": 3.034,
+     "perzentil_10j": 75.6,
+     "min_10j": -1.289,
+     "max_10j": 10.16,
+     "mittel_10j": 2.401
+    }
+   ]
+  },
+  {
+   "id": "fci",
+   "titel": "Financial Conditions Index",
+   "gruppe": "liquiditaet",
+   "einheit": "Standardabweichungen vom Mittel",
+   "was_der_indikator_misst": "Buendelt Zins, Kreditaufschlag, Dollar und Aktienbewertung zu einem einzigen Mass dafuer, wie restriktiv die Finanzierungsbedingungen insgesamt sind - oft aussagekraeftiger als der Leitzins allein.",
+   "bekannte_schwaeche": null,
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "Chicago Fed NFCI",
+     "status": "ok",
+     "stand": "2026-08-21",
+     "wert": -0.566,
+     "frequenz": "woechentlich",
+     "aenderung_woche": -0.005,
+     "aenderung_monat": -0.035,
+     "aenderung_quartal": -0.059,
+     "aenderung_jahr": -0.042,
+     "perzentil_10j": 23.9,
+     "min_10j": -0.695,
+     "max_10j": 0.305,
+     "mittel_10j": -0.457
+    }
+   ]
+  },
+  {
+   "id": "kreditspreads",
+   "titel": "Kreditrisikoaufschlaege",
+   "gruppe": "liquiditaet",
+   "einheit": "Basispunkte",
+   "was_der_indikator_misst": "Der Renditeaufschlag von Unternehmensanleihen gegenueber Staatsanleihen ist der Preis, den der Markt fuer Ausfallrisiko verlangt - der Anleihemarkt riecht Stress meist vor dem Aktienmarkt.",
+   "bekannte_schwaeche": "Wichtiger als das Niveau ist die Ausweitungsgeschwindigkeit. Enge Spreads koennen jahrelang eng bleiben, und die Indexzusammensetzung hat sich ueber die Zeit zu besseren Bonitaeten verschoben.",
+   "schwellenwerte": [
+    {
+     "wert": 300,
+     "label": "sorglos"
+    },
+    {
+     "wert": 800,
+     "label": "Stress"
+    }
+   ],
+   "reihen": [
+    {
+     "name": "High Yield (OAS)",
+     "status": "ok",
+     "stand": "2026-08-27",
+     "wert": 263.0,
+     "frequenz": "taeglich",
+     "aenderung_woche": -12.0,
+     "aenderung_monat": -21.0,
+     "aenderung_quartal": -9.0,
+     "aenderung_jahr": -15.0,
+     "perzentil_10j": 1.4,
+     "min_10j": 259.0,
+     "max_10j": 461.0,
+     "mittel_10j": 313.985
+    },
+    {
+     "name": "Investment Grade (OAS)",
+     "status": "ok",
+     "stand": "2026-08-27",
+     "wert": 79.0,
+     "frequenz": "taeglich",
+     "aenderung_woche": -3.0,
+     "aenderung_monat": -2.0,
+     "aenderung_quartal": 6.0,
+     "aenderung_jahr": 1.0,
+     "perzentil_10j": 17.7,
+     "min_10j": 73.0,
+     "max_10j": 133.0,
+     "mittel_10j": 90.356
+    }
+   ]
+  },
+  {
+   "id": "cape",
+   "titel": "Shiller-CAPE",
+   "gruppe": "bewertung",
+   "einheit": "Kurs-Gewinn-Verhaeltnis",
+   "was_der_indikator_misst": "Der Kurs geteilt durch den inflationsbereinigten Durchschnittsgewinn der vergangenen zehn Jahre - er erklaert einen erheblichen Teil der realen Zehnjahresrendite und praktisch nichts von der Rendite der naechsten zwoelf Monate.",
+   "bekannte_schwaeche": "Der Vergleich mit dem Mittelwert seit 1881 ist irrefuehrend: geaenderte Rechnungslegung, Rueckkaeufe statt Dividenden und ein hoeherer Anteil kapitalarmer Technologiefirmen heben das strukturelle Niveau. Sinnvoller ist der Vergleich mit dem eigenen 25- bis 30-Jahres-Mittel.",
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "CAPE USA (S&P 500)",
+     "status": "ok",
+     "stand": "2026-08-30",
+     "wert": 41.178,
+     "frequenz": "monatlich",
+     "aenderung_woche": 0.562,
+     "aenderung_monat": 0.562,
+     "aenderung_quartal": 0.912,
+     "aenderung_jahr": 3.703,
+     "perzentil_10j": 99.2,
+     "min_10j": 24.817,
+     "max_10j": 41.178,
+     "mittel_10j": 32.465
+    },
+    {
+     "name": "CAPE Europa (MSCI Europe)",
+     "status": "nicht_verfuegbar",
+     "grund_der_nichtverfuegbarkeit": "Der geplante Aufbauweg hat sich im Test als Sackgasse erwiesen. Vorgesehen war, das nachlaufende KGV von der iShares-Produktseite zu lesen und woechentlich fortzuschreiben, bis nach zehn Jahren ein echtes CAPE entsteht. BlackRock liefert die Kennzahl aber nicht im Seitenquelltext, sondern laedt sie ueber eine Schnittstelle nach, die ohne Sitzungskennung nicht erreichbar ist. Damit gibt es nichts fortzuschreiben. Sobald eine freie Quelle fuer die Gewinne eines europaeischen Index auftaucht, beginnt der Aufbau."
+    }
+   ]
+  },
+  {
+   "id": "buffett",
+   "titel": "Buffett-Indikator",
+   "gruppe": "bewertung",
+   "einheit": "Marktkapitalisierung in % des BIP",
+   "was_der_indikator_misst": "Die gesamte Boersenkapitalisierung im Verhaeltnis zum nominalen Bruttoinlandsprodukt - von Buffett 2001 als wahrscheinlich bestes Einzelmass dafuer bezeichnet, wo Bewertungen zu einem gegebenen Zeitpunkt stehen.",
+   "bekannte_schwaeche": "Zaehler und Nenner passen nicht zusammen: Die Gewinne boersennotierter Konzerne stammen zunehmend aus dem Ausland, das BIP misst nur Inlandsproduktion. Der Indikator steigt strukturell - relevanter als das Niveau ist die Abweichung vom eigenen Trend.",
+   "schwellenwerte": [
+    {
+     "wert": 75,
+     "label": "guenstig"
+    },
+    {
+     "wert": 100,
+     "label": "fair"
+    },
+    {
+     "wert": 150,
+     "label": "teuer"
+    }
+   ],
+   "reihen": [
+    {
+     "name": "Buffett-Indikator USA",
+     "status": "ok",
+     "stand": "2026-01-01",
+     "wert": 218.139,
+     "frequenz": "quartalsweise",
+     "aenderung_woche": -10.56,
+     "aenderung_monat": -10.56,
+     "aenderung_quartal": -10.56,
+     "aenderung_jahr": 20.484,
+     "perzentil_10j": 90.2,
+     "min_10j": 128.757,
+     "max_10j": 228.699,
+     "mittel_10j": 173.58
+    }
+   ]
+  },
+  {
+   "id": "erp",
+   "titel": "Aktienrisikopraemie",
+   "gruppe": "bewertung",
+   "einheit": "Prozentpunkte",
+   "was_der_indikator_misst": "Die Gewinnrendite - der Kehrwert des KGV - abzueglich der Rendite zehnjaehriger Staatsanleihen beantwortet die Frage, wie viel man dafuer bezahlt bekommt, statt sicherer Zinsen Aktienrisiko zu tragen.",
+   "bekannte_schwaeche": "In dieser klassischen Form vergleicht sie eine reale mit einer nominalen Groesse und ueberschaetzt Aktien in Hochinflationsphasen systematisch.",
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "USA gegen 10J-Treasuries",
+     "status": "veraltet",
+     "stand": "2026-03-31",
+     "wert": -0.367,
+     "frequenz": "monatlich",
+     "warnung": "Diese Reihe steht seit 2026-03-31 still. Der Abruf lief, aber die Quelle hat nicht aktualisiert. Der Wert ist NICHT aktuell.",
+     "aenderung_woche": -0.091,
+     "aenderung_monat": -0.091,
+     "aenderung_quartal": 0.11,
+     "aenderung_jahr": 0.051,
+     "perzentil_10j": 19.0,
+     "min_10j": -1.083,
+     "max_10j": 3.686,
+     "mittel_10j": 1.326
+    },
+    {
+     "name": "Europa gegen 10J-Bund",
+     "status": "nicht_verfuegbar",
+     "grund_der_nichtverfuegbarkeit": "Scheitert an derselben fehlenden Gewinnbasis wie das CAPE Europa. Die Bundrendite liegt frei vor, die Gewinnrendite eines europaeischen Index nicht. Anders als beim CAPE waere hier kein Aufbau noetig - ein einziger laufender Wert wuerde genuegen -, es gibt ihn nur nirgends maschinenlesbar."
+    }
+   ]
+  },
+  {
+   "id": "kgv",
+   "titel": "Kurs-Gewinn-Verhaeltnis der Indizes",
+   "gruppe": "bewertung",
+   "einheit": "KGV",
+   "was_der_indikator_misst": "Das Verhaeltnis von Indexstand zu Unternehmensgewinn - langfristig folgen Kurse den Gewinnen, und ein steigender Index bei stagnierenden Gewinnen ist reine Bewertungsausweitung.",
+   "bekannte_schwaeche": "Gewuenscht war das Forward-KGV auf Basis von Analystenschaetzungen. Diese Schaetzungen sind das Kerngeschaeft von FactSet, LSEG und Bloomberg und nirgends frei verfuegbar. Gezeigt wird deshalb das nachlaufende KGV auf Basis berichteter Gewinne. Es reagiert traeger und sieht am Rezessionstief - bei eingebrochenen Gewinnen - optisch am teuersten aus.",
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "S&P 500",
+     "status": "veraltet",
+     "stand": "2026-03-31",
+     "wert": 25.425,
+     "frequenz": "monatlich",
+     "warnung": "Diese Reihe steht seit 2026-03-31 still. Der Abruf lief, aber die Quelle hat nicht aktualisiert. Der Wert ist NICHT aktuell.",
+     "aenderung_woche": -1.642,
+     "aenderung_monat": -1.642,
+     "aenderung_quartal": -2.798,
+     "aenderung_jahr": -0.805,
+     "perzentil_10j": 65.3,
+     "min_10j": 19.392,
+     "max_10j": 39.258,
+     "mittel_10j": 25.082
+    },
+    {
+     "name": "MSCI World",
+     "status": "nicht_verfuegbar",
+     "grund_der_nichtverfuegbarkeit": "Wie beim CAPE Europa: Die Fondskennzahl steht nicht im Quelltext der iShares-Produktseite, sondern wird nachgeladen. Fuer den S&P 500 liefert der Shiller-Datensatz das nachlaufende KGV frei, fuer den MSCI World gibt es keine Entsprechung."
+    },
+    {
+     "name": "DAX",
+     "status": "nicht_verfuegbar",
+     "grund_der_nichtverfuegbarkeit": "Kein frei abrufbarer Kennzahlenanbieter. Die deutschen Fondsproduktseiten von BlackRock und der Deutschen Boerse geben das KGV nur als Grafik oder hinter einer Anlegerabfrage aus, die sich nicht automatisieren laesst."
+    },
+    {
+     "name": "ATX",
+     "status": "nicht_verfuegbar",
+     "grund_der_nichtverfuegbarkeit": "Fuer den ATX existiert kein Indexfonds mit oeffentlicher Kennzahlenseite. Die Wiener Boerse veroeffentlicht das KGV nur im kostenpflichtigen Datenpaket."
+    }
+   ]
+  },
+  {
+   "id": "berkshire",
+   "titel": "Kassequote von Berkshire Hathaway",
+   "gruppe": "psychologie",
+   "einheit": "Zahlungsmittel in % der Bilanzsumme",
+   "was_der_indikator_misst": "Buffetts Kassequote ist eine Bewertungsaussage in Handlung uebersetzt: Hohe Cash-Bestaende signalisierten in der Vergangenheit einen Mangel an attraktiv bepreisten Gelegenheiten.",
+   "bekannte_schwaeche": "Abgebildet sind Zahlungsmittel und Zahlungsmitteläquivalente nach der XBRL-Kennzeichnung der Pflichtveroeffentlichung. Der oft zitierte Gesamtbestand von Berkshire ist deutlich groesser, weil er kurzlaufende US-Staatsanleihen enthaelt - und genau die tragen in den SEC-Daten kein eigenes Konzept, sondern stecken in dimensionierten Fakten, welche die Schnittstelle nicht einzeln ausgibt. Das Niveau dieser Reihe ist deshalb nicht mit Presseangaben vergleichbar; ihre Veraenderung ist es.",
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "Kassequote",
+     "status": "ok",
+     "stand": "2026-06-30",
+     "wert": 3.275,
+     "frequenz": "quartalsweise",
+     "aenderung_woche": -1.422,
+     "aenderung_monat": -1.422,
+     "aenderung_quartal": -1.422,
+     "aenderung_jahr": -5.422,
+     "perzentil_10j": 5.1,
+     "min_10j": 2.738,
+     "max_10j": 9.549,
+     "mittel_10j": 5.15
+    }
+   ]
+  },
+  {
+   "id": "berkshire_cash",
+   "titel": "Berkshire Hathaway - Cash absolut",
+   "gruppe": "psychologie",
+   "einheit": "Mrd. USD",
+   "was_der_indikator_misst": "Der absolute Bestand zeigt die Groessenordnung der Mittel, die auf eine Gelegenheit warten - relevant, weil eine gleichbleibende Quote bei wachsender Bilanz einen erheblich groesseren Betrag bedeutet.",
+   "bekannte_schwaeche": "Wie bei der Kassequote: ohne die kurzlaufenden Staatsanleihen, die in den XBRL-Daten kein eigenes Konzept tragen. Der Stand liegt damit deutlich unter den ueblichen Presseangaben.",
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "Cash und kurzfristige Anlagen",
+     "status": "ok",
+     "stand": "2026-06-30",
+     "wert": 41.36,
+     "frequenz": "quartalsweise",
+     "aenderung_woche": -17.45,
+     "aenderung_monat": -17.45,
+     "aenderung_quartal": -17.45,
+     "aenderung_jahr": -59.868,
+     "perzentil_10j": 43.6,
+     "min_10j": 26.482,
+     "max_10j": 101.228,
+     "mittel_10j": 46.468
+    }
+   ]
+  },
+  {
+   "id": "marktbreite",
+   "titel": "Marktbreite - gleichgewichtet gegen kapitalgewichtet",
+   "gruppe": "psychologie",
+   "einheit": "Verhaeltnis, indexiert auf 100",
+   "was_der_indikator_misst": "Neue Indexhochs, die von der Breite des Marktes nicht bestaetigt werden, zeigen eine von wenigen Schwergewichten getragene Rally - solche Divergenzen gingen den Wendepunkten 1999 und 2007 um Monate voraus.",
+   "bekannte_schwaeche": "Ersatzkonstruktion. Die Advance-Decline-Linie der NYSE braucht Breadth-Rohdaten, fuer die es keine freie Quelle gibt. Gezeigt wird das Verhaeltnis des gleichgewichteten zum kapitalgewichteten S&P 500 - die Naeherung, die auch das Zyklus-Cockpit nennt. Sie misst dasselbe Phaenomen, aber nur innerhalb des S&P 500 statt ueber die gesamte NYSE.",
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "RSP / SPY",
+     "status": "ok",
+     "stand": "2026-08-28",
+     "wert": 103.4,
+     "frequenz": "taeglich",
+     "aenderung_woche": -0.952,
+     "aenderung_monat": -3.203,
+     "aenderung_quartal": 3.892,
+     "aenderung_jahr": -1.453,
+     "perzentil_10j": 6.3,
+     "min_10j": 98.122,
+     "max_10j": 141.303,
+     "mittel_10j": 123.67
+    }
+   ]
+  },
+  {
+   "id": "volatilitaet",
+   "titel": "Volatilitaetsindizes VIX und VSTOXX",
+   "gruppe": "psychologie",
+   "einheit": "Indexpunkte",
+   "was_der_indikator_misst": "Die aus Indexoptionen abgeleitete erwartete Schwankung der naechsten dreissig Tage - grob gilt: unter 13 Selbstzufriedenheit, ueber 30 Panik.",
+   "bekannte_schwaeche": "Ein niedriger VIX ist kein Verkaufssignal - er kann monatelang niedrig bleiben. Aussagekraeftiger als das Niveau ist die Terminstruktur.",
+   "schwellenwerte": [
+    {
+     "wert": 13,
+     "label": "Selbstzufriedenheit"
+    },
+    {
+     "wert": 30,
+     "label": "Panik"
+    }
+   ],
+   "reihen": [
+    {
+     "name": "VIX (S&P 500)",
+     "status": "ok",
+     "stand": "2026-08-27",
+     "wert": 14.51,
+     "frequenz": "taeglich",
+     "aenderung_woche": -1.5,
+     "aenderung_monat": -3.7,
+     "aenderung_quartal": -1.23,
+     "aenderung_jahr": -0.34,
+     "perzentil_10j": 30.1,
+     "min_10j": 9.14,
+     "max_10j": 82.69,
+     "mittel_10j": 18.611
+    },
+    {
+     "name": "VSTOXX (EURO STOXX 50)",
+     "status": "fehler",
+     "hinweis": "Keine Datenpunkte vorhanden."
+    }
+   ]
+  },
+  {
+   "id": "putcall",
+   "titel": "Put/Call-Ratio",
+   "gruppe": "psychologie",
+   "einheit": "Verhaeltnis Put- zu Call-Volumen",
+   "was_der_indikator_misst": "Wie viel am Optionsmarkt fuer Absicherung bezahlt wird - ein Wert ueber etwa 1,0 zeigt Angst und ist als Gegenindikator eher bullisch, unter etwa 0,5 Sorglosigkeit.",
+   "bekannte_schwaeche": "Der Boom bei Nulltages-Optionen hat die Volumenverhaeltnisse strukturell veraendert; alte Schwellen sind mit Vorsicht zu lesen.",
+   "schwellenwerte": [
+    {
+     "wert": 0.5,
+     "label": "sorglos"
+    },
+    {
+     "wert": 1.0,
+     "label": "Angst"
+    }
+   ],
+   "reihen": [
+    {
+     "name": "Cboe Equity Put/Call",
+     "status": "nicht_verfuegbar",
+     "grund_der_nichtverfuegbarkeit": "Die frei zugaengliche Cboe-Datei wird abgerufen und ausgewertet, sie endet aber am 4. Oktober 2019 und wird nicht mehr fortgeschrieben. Cboe hat die laufenden Volumendaten hinter eine kostenpflichtige Schnittstelle gelegt; der Abruf der aktuellen Datei antwortet mit HTTP 403. Eine sechs Jahre alte Reihe als Stimmungsindikator zu zeigen waere schlechter als sie wegzulassen. Der VIX im Graphen darueber misst dasselbe Phaenomen und ist frei verfuegbar."
+    }
+   ]
+  },
+  {
+   "id": "margin_debt",
+   "titel": "Margin Debt USA",
+   "gruppe": "psychologie",
+   "einheit": "% gegenueber Vorjahr",
+   "was_der_indikator_misst": "Die Summe der Kredite, die Anleger bei ihren Brokern zum Wertpapierkauf aufgenommen haben - das direkteste verfuegbare Mass fuer den Hebel im System, und Hebel entscheidet darueber, wie ungeordnet ein Rueckgang verlaeuft.",
+   "bekannte_schwaeche": "Erscheint mit rund einem Monat Verzoegerung und erfasst nur Broker-Kredite von US-Privatanlegern. Der absolute Stand steigt mit dem Markt und sagt wenig - deshalb ist hier die Jahresrate abgebildet.",
+   "schwellenwerte": [
+    {
+     "wert": 50,
+     "label": "Euphorie"
+    },
+    {
+     "wert": -20,
+     "label": "Zwangsverkaeufe"
+    }
+   ],
+   "reihen": [
+    {
+     "name": "Margin Debt, Jahresrate",
+     "status": "ok",
+     "stand": "2026-07-01",
+     "wert": 38.597,
+     "frequenz": "monatlich",
+     "aenderung_woche": -10.423,
+     "aenderung_monat": -10.423,
+     "aenderung_quartal": -14.747,
+     "aenderung_jahr": 12.487,
+     "perzentil_10j": 88.4,
+     "min_10j": -33.336,
+     "max_10j": 71.618,
+     "mittel_10j": 11.784
+    }
+   ]
+  },
+  {
+   "id": "bip",
+   "titel": "Bruttoinlandsprodukt",
+   "gruppe": "realwirtschaft",
+   "einheit": "% annualisiert gegenueber Vorquartal",
+   "was_der_indikator_misst": "Zwei aufeinanderfolgende negative Quartale gelten als technische Rezession; interessanter als die Rate ist aber die Zusammensetzung - traegt der Konsum, oder nur Lageraufbau und Staatsausgaben?",
+   "bekannte_schwaeche": "Erscheint mit Wochen Verzoegerung und wird jahrelang revidiert. Die USA annualisieren die Quartalsrate von Haus aus, Euroraum und China nicht - hier sind alle drei Reihen auf die annualisierte Rate umgerechnet und dadurch vergleichbar.",
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "USA",
+     "status": "ok",
+     "stand": "2026-04-01",
+     "wert": 1.5,
+     "frequenz": "quartalsweise",
+     "aenderung_woche": -0.6,
+     "aenderung_monat": -0.6,
+     "aenderung_quartal": 1.0,
+     "aenderung_jahr": -2.3,
+     "perzentil_10j": 22.0,
+     "min_10j": -28.0,
+     "max_10j": 34.9,
+     "mittel_10j": 2.68
+    },
+    {
+     "name": "Euroraum",
+     "status": "ok",
+     "stand": "2026-04-01",
+     "wert": 1.78,
+     "frequenz": "quartalsweise",
+     "aenderung_woche": 1.801,
+     "aenderung_monat": 1.801,
+     "aenderung_quartal": 1.025,
+     "aenderung_jahr": 1.847,
+     "perzentil_10j": 51.2,
+     "min_10j": -37.631,
+     "max_10j": 54.926,
+     "mittel_10j": 1.88
+    },
+    {
+     "name": "China",
+     "status": "nicht_verfuegbar",
+     "grund_der_nichtverfuegbarkeit": "Die FRED-Reihe zum chinesischen BIP endet im Juli 2023 und wird nicht mehr fortgeschrieben. Eine Suche ueber die FRED-Bestaende lieferte keine einzige aktuelle Quartalsreihe zum chinesischen BIP; das Nationale Statistikamt Chinas bietet keine offene Schnittstelle, und die OECD fuehrt China nicht in den frei abrufbaren Quartalsrechnungen. Der chinesische Kreditimpuls weiter oben bleibt damit der einzige China-Indikator im Briefing - er stammt aus BIS-Daten und ist verfuegbar."
+    }
+   ]
+  },
+  {
+   "id": "stimmung",
+   "titel": "Fruehindikatoren der Industrie",
+   "gruppe": "realwirtschaft",
+   "einheit": "Standardabweichungen vom eigenen Mittel",
+   "was_der_indikator_misst": "Umfragen unter Unternehmen, ausgewertet als Diffusionsindex - die schnellste breite Konjunkturmeldung ueberhaupt und der zuverlaessigste Hinweis darauf, wohin die Industrie in den kommenden Monaten laeuft.",
+   "bekannte_schwaeche": "Ersatzkonstruktion, doppelt. Erstens sind ISM und die S&P-Global-PMIs lizenzpflichtig; gezeigt werden stattdessen der Philadelphia-Fed-Index fuer die USA und der ESI der EU-Kommission fuer den Euroraum. Zweitens haben beide voellig verschiedene Skalen - deshalb sind sie hier auf Standardabweichungen vom eigenen historischen Mittel normiert und dadurch vergleichbar. Die vertraute 50er-Marke des PMI gibt es hier folglich nicht; die Nulllinie ist das jeweilige Langfristmittel.",
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "Philadelphia Fed, Industrie (USA)",
+     "status": "ok",
+     "stand": "2026-08-01",
+     "wert": 2.06,
+     "frequenz": "monatlich",
+     "aenderung_woche": 0.321,
+     "aenderung_monat": 0.321,
+     "aenderung_quartal": 2.557,
+     "aenderung_jahr": 2.498,
+     "perzentil_10j": 98.3,
+     "min_10j": -3.616,
+     "max_10j": 2.135,
+     "mittel_10j": 0.117
+    },
+    {
+     "name": "ESI Wirtschaftsklima (Euroraum)",
+     "status": "veraltet",
+     "stand": "2026-01-01",
+     "wert": -0.211,
+     "frequenz": "monatlich",
+     "warnung": "Diese Reihe steht seit 2026-01-01 still. Der Abruf lief, aber die Quelle hat nicht aktualisiert. Der Wert ist NICHT aktuell.",
+     "aenderung_woche": 0.191,
+     "aenderung_monat": 0.191,
+     "aenderung_quartal": 0.135,
+     "aenderung_jahr": 0.596,
+     "perzentil_10j": 34.7,
+     "min_10j": -3.617,
+     "max_10j": 2.206,
+     "mittel_10j": 0.329
+    }
+   ]
+  },
+  {
+   "id": "einzelhandel",
+   "titel": "Einzelhandelsumsaetze",
+   "gruppe": "realwirtschaft",
+   "einheit": "% gegenueber Vorjahr",
+   "was_der_indikator_misst": "Der private Konsum traegt rund zwei Drittel der US-Wirtschaftsleistung und gut die Haelfte im Euroraum - die Einzelhandelsumsaetze messen, was tatsaechlich ausgegeben wurde, nicht was Haushalte in Umfragen angeben.",
+   "bekannte_schwaeche": "Nominale Umsaetze muessen um Inflation bereinigt werden, sonst zaehlt man Preise als Wachstum.",
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "USA",
+     "status": "ok",
+     "stand": "2026-07-01",
+     "wert": 5.009,
+     "frequenz": "monatlich",
+     "aenderung_woche": -1.744,
+     "aenderung_monat": -1.744,
+     "aenderung_quartal": -0.065,
+     "aenderung_jahr": 0.954,
+     "perzentil_10j": 63.6,
+     "min_10j": -19.689,
+     "max_10j": 51.85,
+     "mittel_10j": 5.508
+    },
+    {
+     "name": "Euroraum",
+     "status": "veraltet",
+     "stand": "2025-09-01",
+     "wert": 0.884,
+     "frequenz": "monatlich",
+     "warnung": "Diese Reihe steht seit 2025-09-01 still. Der Abruf lief, aber die Quelle hat nicht aktualisiert. Der Wert ist NICHT aktuell.",
+     "aenderung_woche": -0.597,
+     "aenderung_monat": -0.597,
+     "aenderung_quartal": -2.846,
+     "aenderung_jahr": -2.152,
+     "perzentil_10j": 32.2,
+     "min_10j": -19.563,
+     "max_10j": 24.58,
+     "mittel_10j": 1.516
+    }
+   ]
+  },
+  {
+   "id": "industrieproduktion",
+   "titel": "Industrieproduktion",
+   "gruppe": "realwirtschaft",
+   "einheit": "% gegenueber Vorjahr",
+   "was_der_indikator_misst": "Die harte Mengengroesse der Industrie - langsamer als jede Umfrage, aber nicht durch Stimmung verzerrt und die Basis, an der sich Fruehindikatoren im Nachhinein messen lassen muessen.",
+   "bekannte_schwaeche": null,
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "USA",
+     "status": "ok",
+     "stand": "2026-07-01",
+     "wert": 1.079,
+     "frequenz": "monatlich",
+     "aenderung_woche": -0.21,
+     "aenderung_monat": -0.21,
+     "aenderung_quartal": -0.297,
+     "aenderung_jahr": -0.839,
+     "perzentil_10j": 61.2,
+     "min_10j": -17.318,
+     "max_10j": 16.552,
+     "mittel_10j": 0.309
+    },
+    {
+     "name": "Euroraum",
+     "status": "veraltet",
+     "stand": "2025-09-01",
+     "wert": 1.448,
+     "frequenz": "monatlich",
+     "warnung": "Diese Reihe steht seit 2025-09-01 still. Der Abruf lief, aber die Quelle hat nicht aktualisiert. Der Wert ist NICHT aktuell.",
+     "aenderung_woche": 0.831,
+     "aenderung_monat": 0.831,
+     "aenderung_quartal": 0.731,
+     "aenderung_jahr": 3.175,
+     "perzentil_10j": 62.0,
+     "min_10j": -28.729,
+     "max_10j": 41.573,
+     "mittel_10j": 0.535
+    }
+   ]
+  },
+  {
+   "id": "kerninflation",
+   "titel": "Kerninflation",
+   "gruppe": "realwirtschaft",
+   "einheit": "% gegenueber Vorjahr",
+   "was_der_indikator_misst": "Inflation ohne Energie und Nahrungsmittel ist die fuer Notenbanken relevante Groesse - und fuer den Aktienmarkt kein Nebenschauplatz, sondern der Zinssatz, mit dem alle kuenftigen Gewinne abgezinst werden.",
+   "bekannte_schwaeche": "Basiseffekte machen Jahresraten irrefuehrend; die annualisierte Drei- oder Sechsmonatsrate zeigt Wendepunkte frueher. Der Wohnkostenanteil im US-CPI laeuft den realen Mieten rund ein Jahr hinterher.",
+   "schwellenwerte": [
+    {
+     "wert": 2,
+     "label": "Zielmarke"
+    }
+   ],
+   "reihen": [
+    {
+     "name": "USA (Kern-CPI)",
+     "status": "ok",
+     "stand": "2026-07-01",
+     "wert": 2.466,
+     "frequenz": "monatlich",
+     "aenderung_woche": -0.099,
+     "aenderung_monat": -0.099,
+     "aenderung_quartal": -0.277,
+     "aenderung_jahr": -0.588,
+     "perzentil_10j": 47.5,
+     "min_10j": 1.184,
+     "max_10j": 6.624,
+     "mittel_10j": 3.113
+    },
+    {
+     "name": "Euroraum (Kern-HVPI)",
+     "status": "veraltet",
+     "stand": "2025-12-01",
+     "wert": 2.294,
+     "frequenz": "monatlich",
+     "warnung": "Diese Reihe steht seit 2025-12-01 still. Der Abruf lief, aber die Quelle hat nicht aktualisiert. Der Wert ist NICHT aktuell.",
+     "aenderung_woche": -0.119,
+     "aenderung_monat": -0.119,
+     "aenderung_quartal": -0.061,
+     "aenderung_jahr": -0.421,
+     "perzentil_10j": 61.2,
+     "min_10j": 0.21,
+     "max_10j": 5.663,
+     "mittel_10j": 2.012
+    }
+   ]
+  },
+  {
+   "id": "dxy",
+   "titel": "Dollar-Index (DXY)",
+   "gruppe": "rohstoffe",
+   "einheit": "Indexpunkte",
+   "was_der_indikator_misst": "Ein starker Dollar verteuert die weltweite Dollarverschuldung, drueckt Rohstoffpreise und die Gewinne von US-Exporteuren - er ist der wichtigste einzelne Uebertragungskanal amerikanischer Geldpolitik in den Rest der Welt.",
+   "bekannte_schwaeche": null,
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "Dollar-Index",
+     "status": "ok",
+     "stand": "2026-08-28",
+     "wert": 99.7,
+     "frequenz": "taeglich",
+     "aenderung_woche": 0.9,
+     "aenderung_monat": -1.1,
+     "aenderung_quartal": 0.79,
+     "aenderung_jahr": 1.89,
+     "perzentil_10j": 61.3,
+     "min_10j": 88.59,
+     "max_10j": 114.11,
+     "mittel_10j": 98.732
+    }
+   ]
+  },
+  {
+   "id": "kupfer_gold",
+   "titel": "Kupfer/Gold-Verhaeltnis",
+   "gruppe": "rohstoffe",
+   "einheit": "Verhaeltnis",
+   "was_der_indikator_misst": "Setzt das zyklische Industriemetall gegen den defensiven Wertspeicher und laeuft historisch mit Anleiherenditen und Konjunkturzyklus im Gleichschritt - ein fallendes Verhaeltnis bei steigenden Aktienkursen ist eine Divergenz, die man ernst nehmen sollte.",
+   "bekannte_schwaeche": null,
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "Kupfer / Gold",
+     "status": "ok",
+     "stand": "2026-08-28",
+     "wert": 0.001,
+     "frequenz": "taeglich",
+     "aenderung_woche": 0.0,
+     "aenderung_monat": -0.0,
+     "aenderung_quartal": 0.0,
+     "aenderung_jahr": 0.0,
+     "perzentil_10j": 8.0,
+     "min_10j": 0.001,
+     "max_10j": 0.003,
+     "mittel_10j": 0.002
+    }
+   ]
+  },
+  {
+   "id": "gold",
+   "titel": "Goldpreis",
+   "gruppe": "rohstoffe",
+   "einheit": "USD je Feinunze",
+   "was_der_indikator_misst": "Gold traegt keinen Zins und wird deshalb vor allem dann teurer, wenn die Realzinsen fallen oder das Vertrauen in Waehrungen und Staatsfinanzen nachlaesst - es ist ein Misstrauensindikator, kein Konjunkturindikator.",
+   "bekannte_schwaeche": null,
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "Gold",
+     "status": "ok",
+     "stand": "2026-08-28",
+     "wert": 4562.75,
+     "frequenz": "taeglich",
+     "aenderung_woche": -19.35,
+     "aenderung_monat": 561.9,
+     "aenderung_quartal": 16.8,
+     "aenderung_jahr": 1155.1,
+     "perzentil_10j": 96.6,
+     "min_10j": 1125.7,
+     "max_10j": 5405.0,
+     "mittel_10j": 2051.038
+    }
+   ]
+  },
+  {
+   "id": "silber",
+   "titel": "Silberpreis",
+   "gruppe": "rohstoffe",
+   "einheit": "USD je Feinunze",
+   "was_der_indikator_misst": "Silber ist zugleich Edelmetall und Industriemetall - es folgt Gold in Krisen, haengt aber staerker an Elektronik-, Solar- und Industrienachfrage und schwankt deshalb deutlich staerker.",
+   "bekannte_schwaeche": null,
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "Silber",
+     "status": "ok",
+     "stand": "2026-08-28",
+     "wert": 70.26,
+     "frequenz": "taeglich",
+     "aenderung_woche": 0.75,
+     "aenderung_monat": 12.865,
+     "aenderung_quartal": -5.525,
+     "aenderung_jahr": 31.325,
+     "perzentil_10j": 95.7,
+     "min_10j": 12.005,
+     "max_10j": 118.45,
+     "mittel_10j": 26.323
+    }
+   ]
+  },
+  {
+   "id": "kupfer",
+   "titel": "Kupferpreis",
+   "gruppe": "rohstoffe",
+   "einheit": "USD je Pfund",
+   "was_der_indikator_misst": "Kupfer heisst nicht zufaellig Dr. Copper - es steckt in Bau, Stromnetz, Fahrzeug und Rechenzentrum und reagiert auf Nachfrageaenderungen, bevor sie in der Statistik auftauchen.",
+   "bekannte_schwaeche": "Chinas Bau- und Lagerpolitik dominiert die Kupfernachfrage und kann das Konjunktursignal jahrelang verzerren.",
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "Kupfer",
+     "status": "ok",
+     "stand": "2026-08-28",
+     "wert": 6.562,
+     "frequenz": "taeglich",
+     "aenderung_woche": -0.018,
+     "aenderung_monat": 0.288,
+     "aenderung_quartal": 0.203,
+     "aenderung_jahr": 2.099,
+     "perzentil_10j": 99.2,
+     "min_10j": 2.068,
+     "max_10j": 6.71,
+     "mittel_10j": 3.721
+    }
+   ]
+  },
+  {
+   "id": "weizen",
+   "titel": "Weizenpreis",
+   "gruppe": "rohstoffe",
+   "einheit": "US-Cent je Bushel",
+   "was_der_indikator_misst": "Nahrungsmittelpreise schlagen in Schwellenlaendern direkt auf die Verbraucherpreise und historisch auch auf die politische Stabilitaet durch - im Euroraum und den USA wirken sie ueber die Gesamtinflation auf die Realeinkommen.",
+   "bekannte_schwaeche": "Wetter und Krieg dominieren das Angebot. Preisspruenge sind meist Angebotsschocks und sagen ueber die Nachfrageseite der Konjunktur wenig aus.",
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "Weizen",
+     "status": "ok",
+     "stand": "2026-08-28",
+     "wert": 767.0,
+     "frequenz": "taeglich",
+     "aenderung_woche": 85.5,
+     "aenderung_monat": 106.25,
+     "aenderung_quartal": 156.5,
+     "aenderung_jahr": 256.75,
+     "perzentil_10j": 89.4,
+     "min_10j": 361.0,
+     "max_10j": 1425.25,
+     "mittel_10j": 586.026
+    }
+   ]
+  },
+  {
+   "id": "brent",
+   "titel": "Oelpreis Brent",
+   "gruppe": "rohstoffe",
+   "einheit": "USD je Barrel",
+   "was_der_indikator_misst": "Nahezu jede US-Rezession seit 1970 folgte auf einen scharfen Oelpreisanstieg - Energie ist der einzige Rohstoff, der breit genug in die Kostenstruktur einfliesst, um allein eine Konjunktur zu kippen.",
+   "bekannte_schwaeche": "Angebotsschocks durch OPEC-Entscheidungen oder Krieg sehen in der Zeitreihe genauso aus wie Nachfragesignale, bedeuten aber das Gegenteil.",
+   "schwellenwerte": [],
+   "reihen": [
+    {
+     "name": "Brent",
+     "status": "ok",
+     "stand": "2026-08-25",
+     "wert": 88.24,
+     "frequenz": "taeglich",
+     "aenderung_woche": -7.05,
+     "aenderung_monat": -12.07,
+     "aenderung_quartal": -14.51,
+     "aenderung_jahr": 19.95,
+     "perzentil_10j": 85.8,
+     "min_10j": 9.12,
+     "max_10j": 138.21,
+     "mittel_10j": 71.05
+    }
+   ]
+  },
+  {
+   "id": "lei",
+   "titel": "Fruehindikator-Gesamtindex",
+   "gruppe": "zusammenfassend",
+   "einheit": "Index, 100 = langfristiger Trend",
+   "was_der_indikator_misst": "Buendelt mehrere Fruehindikatoren - Auftragseingaenge, Arbeitszeit, Zinskurve, Kreditbedingungen, Aktienkurse - zu einer einzigen Kurve, deren Wendepunkte denen der Gesamtwirtschaft typischerweise um mehrere Monate vorauslaufen.",
+   "bekannte_schwaeche": "Ersatzkonstruktion. Der Conference Board LEI ist proprietaer; frei ist nur die monatliche Pressemitteilung. Gezeigt wird der Composite Leading Indicator der OECD, der nach derselben Logik gebaut ist. Und die Warnung gilt fuer beide: 2022 lieferten diese Indizes einen prominenten Fehlalarm.",
+   "schwellenwerte": [
+    {
+     "wert": 100,
+     "label": "Trend"
+    }
+   ],
+   "reihen": [
+    {
+     "name": "USA",
+     "status": "ok",
+     "stand": "2026-06-01",
+     "wert": 100.802,
+     "frequenz": "monatlich",
+     "aenderung_woche": 0.044,
+     "aenderung_monat": 0.044,
+     "aenderung_quartal": 0.163,
+     "aenderung_jahr": 1.147,
+     "perzentil_10j": 85.1,
+     "min_10j": 92.905,
+     "max_10j": 101.388,
+     "mittel_10j": 99.667
+    },
+    {
+     "name": "Euroraum",
+     "status": "nicht_verfuegbar",
+     "grund_der_nichtverfuegbarkeit": "Die FRED-Spiegel der OECD-Fruehindikatoren werden nicht mehr fortgeschrieben - die Euroraum-Reihe endet im November 2022, ohne dass der Abruf fehlschlaegt. Bei der OECD selbst existiert fuer den Euroraum als Aggregat kein CLI unter demselben Gebietscode wie fuer die USA. Eine Suche in den FRED-Bestaenden ergab keinen einzigen aktuellen zusammengesetzten Fruehindikator fuer den Euroraum. Die Einzelbausteine eines solchen Index stehen im Briefing ohnehin: Zinskurve, Kreditvergabestandards, Kreditaufschlaege und das Kupfer/Gold-Verhaeltnis."
+    }
+   ]
+  }
+ ]
+}

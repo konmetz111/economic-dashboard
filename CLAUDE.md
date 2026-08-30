@@ -6,18 +6,38 @@ und sollte nicht zusammengelegt werden.
 
 ## Architektur
 
-| Stufe | Wo | Was | Warum getrennt |
+Zwei strikt getrennte Stufen an **verschiedenen Orten** - dasselbe Muster wie im
+Schwesterprojekt `news-briefing`.
+
+| Stufe | Wo | Was | Netzzugang |
 |---|---|---|---|
-| 1 | `scripts/build_data.py` | Abruf, Ableitung, Aktualitaetspruefung | Laeuft ohne Sprachmodell und kostet daher kein Nutzungslimit |
-| 2 | `scripts/build_commentary.py` | Kennzahlen rechnen, Text formulieren lassen | Siehe unten - die Zahlen entstehen in Python, nicht im Modell |
-| 3 | `docs/` | Statische Seite, laedt die JSON-Dateien | Kein Backend, keine Fremdabhaengigkeit |
+| 1 | GitHub Actions | `build_data.py` (Abruf, Ableitung, Aktualitaetspruefung) und `build_kennzahlen.py` (rechnet jede Kennzahl aus, schreibt `data/kennzahlen.json`) | frei |
+| 2 | Claude-Code-Cloud-Routine | Liest `data/kennzahlen.json`, formuliert, schreibt und committet `docs/data/commentary.json`. Auftrag: `prompt/kommentar-prompt.md` | nur GitHub noetig |
+| — | `docs/` | Statische Seite, laedt die JSON-Dateien | kein Backend |
+
+Die Aufteilung hat zwei Gruende. Erstens laeuft Stufe 1 ohne Sprachmodell und
+kostet daher kein Nutzungslimit. Zweitens - und wichtiger - kommen so
+saemtliche Zahlen aus Python. Anders als beim news-briefing ist die Sandbox hier
+kein Zwang: Stufe 2 braucht nur GitHub-Zugriff, weil sie ausschliesslich
+committete Dateien liest.
 
 ## Verbindliche Regeln
 
-- **Zahlen kommen nie aus dem Sprachmodell.** `build_commentary.py` rechnet
-  Stand, Veraenderungen, Perzentil und Schwellenlage in Python aus und uebergibt
-  sie als Block `KENNZAHLEN`. Das Modell formuliert ausschliesslich. Wer diese
+- **Zahlen kommen nie aus dem Sprachmodell.** `build_kennzahlen.py` rechnet
+  Stand, Veraenderungen ueber vier Zeitraeume, Perzentil, Spannweite und Mittel
+  in Python aus und legt sie in `data/kennzahlen.json` ab. Die Routine
+  formuliert ausschliesslich und darf nichts selbst rechnen. Wer diese
   Reihenfolge umdreht, holt sich erfundene Zahlen ins Briefing.
+- **Stufe 2 ruft keine Webseiten ab.** Auch nicht ergaenzend oder zur Kontrolle.
+  Sie kennt nur `data/kennzahlen.json` und hat keinen Zugang zu Nachrichten.
+- **Stufe 2 committet ausschliesslich `docs/data/commentary.json`.** Die
+  Datenstaende gehoeren Stufe 1; ein Commit von `data/` oder `docs/data/chart-*`
+  aus der Routine heraus wuerde den naechsten Actions-Lauf mit einem Konflikt
+  begruessen.
+- **Der regelbasierte Grundtext bleibt.** `build_kennzahlen.py` schreibt bei
+  jedem Lauf eine nuechterne Fassung in `commentary.json`. Faellt die Routine
+  aus, steht dort ein korrekter Zahlenbefund statt einer Luecke. Diesen
+  Rueckfallweg nicht entfernen.
 - **Ein technischer Ausfall darf sich nie wie eine ereignislose Datenlage
   lesen.** Faellt eine Quelle aus, bleibt der letzte Stand stehen, aber die
   Reihe traegt `status: fehler` bzw. `veraltet` - sichtbar als Marke am Graphen

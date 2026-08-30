@@ -753,7 +753,13 @@ async function start() {
   $("#seitentitel").textContent = meta.titel;
   $("#seitenuntertitel").textContent = meta.untertitel;
   $("#meta-datenstand").textContent = meta.erzeugt.replace("T", " ").replace("Z", " UTC");
-  $("#meta-modell").textContent = kommentare.modell || "–";
+  // Die Kommentare entstehen in einem zweiten Lauf, der nach dem Datenabruf
+  // stattfindet. Bleibt er aus, stuenden hier die Texte der Vorwoche unter
+  // Zahlen dieser Woche - ohne dass man es saehe. Deshalb der Abgleich.
+  const kommentarVeraltet =
+    kommentare.datenstand && kommentare.datenstand !== meta.erzeugt;
+  $("#meta-modell").textContent =
+    (kommentare.modell || "–") + (kommentarVeraltet ? " · älter als die Daten" : "");
   $("#meta-umfang").textContent =
     `${meta.charts.length} Graphen, ${meta.charts.reduce((s, c) => s + c.reihen.length, 0)} Reihen`;
   document.title = meta.titel;

@@ -8,31 +8,41 @@ statische Seite auf GitHub Pages, mit einem kurzen Kommentar unter jedem Graphen
 
 ## Wie es laeuft
 
-| Stufe | Wo | Was |
-|---|---|---|
-| 1 | `scripts/build_data.py` | Ruft alle Reihen ab, leitet berechnete Groessen ab, prueft die Aktualitaet und schreibt `docs/data/chart-*.json` |
-| 2 | `scripts/build_commentary.py` | Rechnet die Kennzahlen aus und laesst Claude daraus die Kommentare formulieren |
-| 3 | GitHub Actions | Startet beides montags 06:00 UTC und committet das Ergebnis |
-| 4 | GitHub Pages | Liefert `docs/` als Website aus |
+Zwei strikt getrennte Stufen, die an **verschiedenen Orten** laufen - dasselbe
+Muster wie im Schwesterprojekt `news-briefing`.
 
-Die Trennung von Stufe 1 und 2 ist keine Formsache: **Saemtliche Zahlen werden in
-Python gerechnet und dem Sprachmodell fertig uebergeben.** Das Modell formuliert
-nur. Damit kann im Kommentar keine Zahl stehen, die nicht vorher ausgerechnet
-wurde. Ohne `ANTHROPIC_API_KEY` entstehen die Kommentare rein regelbasiert -
-nuechterner, aber vollstaendig.
+| Stufe | Wo | Was | Kosten |
+|---|---|---|---|
+| 1 | GitHub Actions (`.github/workflows/update.yml`) | `build_data.py` ruft alle Reihen ab und schreibt `docs/data/chart-*.json`; `build_kennzahlen.py` rechnet daraus jede Kennzahl aus und legt `data/kennzahlen.json` als Uebergabe an | nichts, laeuft ohne Sprachmodell |
+| 2 | Claude-Code-Cloud-Routine (`prompt/kommentar-prompt.md`) | Liest `data/kennzahlen.json`, formuliert die Kommentare, schreibt `docs/data/commentary.json` zurueck und committet sie | laeuft ueber das Claude-Abo, keine API-Abrechnung |
+| — | GitHub Pages | Liefert `docs/` als Website aus | nichts |
+
+Die Trennung ist keine Formsache, sondern der Kern des Entwurfs: **Saemtliche
+Zahlen werden in Stufe 1 in Python gerechnet und dem Sprachmodell fertig
+uebergeben.** Stufe 2 formuliert nur und darf ausdruecklich nichts selbst
+rechnen. Damit kann im Kommentar keine Zahl stehen, die nicht vorher
+ausgerechnet wurde.
+
+Stufe 1 schreibt zusaetzlich einen regelbasierten Grundtext in
+`commentary.json`. Faellt Stufe 2 aus, steht dort also weiterhin ein korrekter,
+nur nuechterner Zahlenbefund statt einer Luecke - erkennbar am Feld
+`erzeugt_mit`, das die Website unter jedem Graphen anzeigt. Ist der Kommentar
+aelter als die Daten, vermerkt die Seite auch das im Kopf.
 
 ## Einrichtung
 
 1. **FRED-Schluessel besorgen** - kostenlos unter
    https://fredaccount.stlouisfed.org/apikeys
-2. **Secrets anlegen** unter *Settings -> Secrets and variables -> Actions*:
-   - `FRED_API_KEY` (Pflicht)
-   - `ANTHROPIC_API_KEY` (optional, fuer die formulierten Kommentare)
+2. **Secret anlegen** unter *Settings -> Secrets and variables -> Actions*:
+   `FRED_API_KEY`. Ein Anthropic-Schluessel wird **nicht** gebraucht.
 3. **Pages einschalten** unter *Settings -> Pages*: Source `Deploy from a branch`,
    Branch `main`, Ordner `/docs`.
 4. **Ersten Lauf ausloesen** unter *Actions -> Wochenbriefing aktualisieren ->
-   Run workflow*. Vor diesem Lauf zeigt die Seite nur einen Ladehinweis, weil
-   noch keine Daten im Repository liegen.
+   Run workflow*.
+5. **Cloud-Routine einrichten**, die woechentlich nach Stufe 1 laeuft und
+   `prompt/kommentar-prompt.md` als Auftrag bekommt. Sie braucht nur
+   GitHub-Zugriff - sie ruft keine Webseiten ab, sondern liest ausschliesslich
+   die committete Datei `data/kennzahlen.json`.
 
 ## Lokal ausfuehren
 
@@ -40,7 +50,7 @@ nuechterner, aber vollstaendig.
 pip install -r requirements.txt
 export FRED_API_KEY=...
 python scripts/build_data.py
-python scripts/build_commentary.py
+python scripts/build_kennzahlen.py
 python -m http.server -d docs 8000
 ```
 

@@ -48,14 +48,14 @@ jobs:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python scripts/build_data.py ${{ github.event.inputs.nur && format('--nur {0}', github.event.inputs.nur) || '' }}
 
-      - name: Kommentare erzeugen
-        # Laeuft auch ohne Schluessel - dann rein regelbasiert. Ein fehlender
-        # oder abgelaufener Anthropic-Schluessel darf das Briefing nicht
-        # verhindern, sondern nur seine Sprache nuechterner machen.
+      - name: Kennzahlen rechnen und uebergeben
+        # Rechnet nur. Der formulierte Kommentar entsteht in Stufe 2, einer
+        # Claude-Code-Cloud-Routine, die data/kennzahlen.json liest und
+        # docs/data/commentary.json zurueckschreibt. Hier entsteht lediglich
+        # ein regelbasierter Grundtext, damit die Website zwischen den beiden
+        # Laeufen nie ohne Kommentar dasteht.
         if: steps.daten.outcome == 'success'
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: python scripts/build_commentary.py
+        run: python scripts/build_kennzahlen.py
 
       - name: Ergebnis committen
         # Nur bei erfolgreichem Datenlauf. Bricht build_data.py wegen
@@ -65,7 +65,7 @@ jobs:
         run: |
           git config user.name  "briefing-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/series docs/data
+          git add data/series data/kennzahlen.json docs/data
           if git diff --cached --quiet; then
             echo "Keine Aenderungen - nichts zu committen."
             exit 0
