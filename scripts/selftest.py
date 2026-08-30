@@ -28,7 +28,7 @@ from sources import MODULE, hole_reihe
 VERWEISE = ("basis", "minuend", "subtrahend", "zaehler", "nenner", "kurz", "lang")
 FORMELN = {"differenz", "jahresrate", "qoq_annualisiert", "kreditimpuls", "zscore",
            "cape_aufbau", "quotient", "quotient_prozent", "quotient_indexiert",
-           "forward_1j1j"}
+           "forward_1j1j", "index_ab"}
 
 # Ab wann eine Reihe auffaellig alt ist, nach erkannter Frequenz. Nur ein
 # Hinweis im Test, kein Fehler - manche Statistiken erscheinen nun einmal spaet.

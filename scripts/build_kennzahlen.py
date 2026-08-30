@@ -26,6 +26,7 @@ Aufruf:  python scripts/build_kennzahlen.py
 from __future__ import annotations
 
 import json
+import math
 import sys
 from datetime import date, timedelta
 from pathlib import Path
@@ -68,6 +69,16 @@ def _perzentil(punkte: list, wert: float, jahre: int = 10) -> float | None:
     return round(sum(1 for w in fenster if w < wert) / len(fenster) * 100, 1)
 
 
+def _rund(wert: float) -> float:
+    """Auf sechs signifikante Stellen runden, nicht auf feste Nachkommastellen.
+
+    Der Unterschied ist nicht kosmetisch: round(wert, 3) macht aus dem
+    Kupfer/Gold-Verhaeltnis von 0,0014434 eine 0,001 - ein Fehler von dreissig
+    Prozent, der so in die Uebergabedatei und damit in den Kommentar wandert.
+    """
+    return float(f"{wert:.6g}")
+
+
 def kennzahlen(reihe: dict) -> dict:
     """Alles, was Stufe 2 an Zahlen bekommt - und nur das."""
     punkte = reihe.get("punkte") or []
@@ -81,7 +92,7 @@ def kennzahlen(reihe: dict) -> dict:
         return grund
 
     tag, jetzt = punkte[-1]
-    grund |= {"stand": tag, "wert": round(jetzt, 3),
+    grund |= {"stand": tag, "wert": _rund(jetzt),
               "frequenz": reihe.get("frequenz", "unbekannt")}
 
     if reihe["status"] == "veraltet":
@@ -96,14 +107,14 @@ def kennzahlen(reihe: dict) -> dict:
     for label, tage in (("woche", 7), ("monat", 30), ("quartal", 91), ("jahr", 365)):
         vorher = _wert_vor(punkte, tage)
         if vorher and vorher[0] != tag:
-            grund[f"aenderung_{label}"] = round(jetzt - vorher[1], 3)
+            grund[f"aenderung_{label}"] = _rund(jetzt - vorher[1])
 
     grund["perzentil_10j"] = _perzentil(punkte, jetzt)
     fenster = [w for t, w in punkte if t >= _vor_jahren(tag, 10)]
     if fenster:
-        grund |= {"min_10j": round(min(fenster), 3),
-                  "max_10j": round(max(fenster), 3),
-                  "mittel_10j": round(sum(fenster) / len(fenster), 3)}
+        grund |= {"min_10j": _rund(min(fenster)),
+                  "max_10j": _rund(max(fenster)),
+                  "mittel_10j": _rund(sum(fenster) / len(fenster))}
     return grund
 
 
@@ -112,13 +123,25 @@ def kennzahlen(reihe: dict) -> dict:
 # --------------------------------------------------------------------------- #
 
 def _richtung(delta: float) -> str:
-    return "unveraendert" if abs(delta) < 1e-9 else ("gestiegen" if delta > 0 else "gefallen")
+    return "unverändert" if abs(delta) < 1e-9 else ("gestiegen" if delta > 0 else "gefallen")
 
 
 def _dt(wert: float) -> str:
-    """Deutsche Zahlschreibweise - Komma als Dezimaltrennzeichen."""
+    """Deutsche Zahlschreibweise mit sinnvoll vielen Nachkommastellen.
+
+    Die Zahl der Stellen richtet sich nach der Groessenordnung, nicht nach einer
+    festen Regel. Zwei Nachkommastellen pauschal haetten das
+    Kupfer/Gold-Verhaeltnis - Werte um 0,0015 - als "0,00" ausgegeben.
+    """
     betrag = abs(wert)
-    stellen = 0 if betrag >= 1000 else 1 if betrag >= 100 else 2
+    if betrag >= 1000:
+        stellen = 0
+    elif betrag >= 100:
+        stellen = 1
+    elif betrag >= 0.1 or betrag == 0:
+        stellen = 2
+    else:
+        stellen = min(8, 2 - math.floor(math.log10(betrag)))
     return f"{wert:,.{stellen}f}".replace(",", " ").replace(".", ",")
 
 
@@ -126,14 +149,14 @@ def _dt(wert: float) -> str:
 # stuende unter einer Quartalsreihe "gegenueber dem Vormonat", was schlicht
 # falsch ist - der Vormonatswert existiert dort gar nicht.
 VERGLEICH = {
-    "taeglich": [("aenderung_woche", "gegenueber der Vorwoche"),
-                 ("aenderung_monat", "gegenueber dem Vormonat")],
-    "woechentlich": [("aenderung_monat", "gegenueber dem Vormonat"),
-                     ("aenderung_quartal", "gegenueber dem Vorquartal")],
-    "monatlich": [("aenderung_monat", "gegenueber dem Vormonat"),
-                  ("aenderung_jahr", "gegenueber dem Vorjahr")],
-    "quartalsweise": [("aenderung_quartal", "gegenueber dem Vorquartal"),
-                      ("aenderung_jahr", "gegenueber dem Vorjahr")],
+    "taeglich": [("aenderung_woche", "gegenüber der Vorwoche"),
+                 ("aenderung_monat", "gegenüber dem Vormonat")],
+    "woechentlich": [("aenderung_monat", "gegenüber dem Vormonat"),
+                     ("aenderung_quartal", "gegenüber dem Vorquartal")],
+    "monatlich": [("aenderung_monat", "gegenüber dem Vormonat"),
+                  ("aenderung_jahr", "gegenüber dem Vorjahr")],
+    "quartalsweise": [("aenderung_quartal", "gegenüber dem Vorquartal"),
+                      ("aenderung_jahr", "gegenüber dem Vorjahr")],
 }
 
 
@@ -143,7 +166,7 @@ def regelbasiert(chart: dict, zahlen: list[dict]) -> str:
 
     for z in zahlen:
         if z["status"] == "nicht_verfuegbar":
-            saetze.append(f"{z['name']}: nicht verfuegbar. "
+            saetze.append(f"{z['name']}: nicht verfügbar. "
                           f"{z.get('grund_der_nichtverfuegbarkeit', '')}".strip())
             continue
         if "wert" not in z:
@@ -151,27 +174,35 @@ def regelbasiert(chart: dict, zahlen: list[dict]) -> str:
             continue
 
         teil = f"{z['name']} steht bei {_dt(z['wert'])}"
-        if einheit:
+        # Nur knappe Einheiten in den Satz ziehen. "Index, 1. Januar 2007 = 100"
+        # mitten im Fliesstext ergibt "steht bei 773,7 Index, 1. Januar 2007 =
+        # 100 (Stand ...)" - unlesbar. Lange Angaben stehen ohnehin unter dem
+        # Titel des Graphen.
+        if einheit and len(einheit) <= 22 and "," not in einheit and "=" not in einheit:
             teil += f" {einheit}"
         teil += f" (Stand {z['stand']})"
 
         for feld, bezeichnung in VERGLEICH.get(z.get("frequenz", ""), VERGLEICH["monatlich"]):
             if z.get(feld) is not None:
-                teil += f", {bezeichnung} um {_dt(abs(z[feld]))} {_richtung(z[feld])}"
+                richtung = _richtung(z[feld])
+                # Bei einem Wert, der sich nicht bewegt hat, waere "um 0,00000
+                # unverändert" nur Rauschen.
+                teil += (f", {bezeichnung} {richtung}" if richtung == "unverändert"
+                         else f", {bezeichnung} um {_dt(abs(z[feld]))} {richtung}")
                 break
 
         if z.get("perzentil_10j") is not None:
-            teil += (f"; damit liegt der Wert ueber {_dt(z['perzentil_10j'])} Prozent "
-                     f"aller Staende der vergangenen zehn Jahre")
+            teil += (f"; damit liegt der Wert über {_dt(z['perzentil_10j'])} Prozent "
+                     f"aller Stände der vergangenen zehn Jahre")
         saetze.append(teil + ".")
 
         if z.get("warnung"):
             saetze.append(z["warnung"])
 
     zweiter = ("Die Einordnung der Folgen schreibt die Cloud-Routine; bis zu "
-               "ihrem naechsten Lauf steht hier nur der Zahlenbefund. Was der "
-               "Indikator misst, steht ueber dem Graphen"
-               + (", seine bekannte Schwaeche darunter." if chart.get("schwaeche") else "."))
+               "ihrem nächsten Lauf steht hier nur der Zahlenbefund. Was der "
+               "Indikator misst, steht über dem Graphen"
+               + (", seine bekannte Schwäche darunter." if chart.get("schwaeche") else "."))
     return f"{' '.join(saetze)}\n\n{zweiter}"
 
 

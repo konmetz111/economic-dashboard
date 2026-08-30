@@ -26,7 +26,7 @@ import yaml
 
 import common
 from common import (DATEN, REIHEN, WURZEL, Reihe, cape_aufbau, differenz,
-                    fehlerreihe, indexiert, jahresrate, jetzt_utc,
+                    fehlerreihe, index_ab, indexiert, jahresrate, jetzt_utc,
                     kreditimpuls, mit_bestand_verschmelzen, forward_1j1j,
                     qoq_annualisiert, quotient, reihe_laden, reihe_speichern,
                     zscore)
@@ -176,6 +176,12 @@ def berechnen(key: str, args: dict, vorrat: dict[str, Reihe]) -> Reihe:
         basis = hol("basis")
         return zscore(basis, key) if basis else fehlerreihe(key, "Basisreihe fehlt")
 
+    if formel == "index_ab":
+        basis = hol("basis")
+        if not basis:
+            return fehlerreihe(key, "Basisreihe fehlt")
+        return index_ab(basis, key, args["datum"])
+
     if formel in ("quotient", "quotient_prozent", "quotient_indexiert"):
         z, n = hol("zaehler"), hol("nenner")
         if not z or not n:
@@ -288,8 +294,13 @@ def _ausgeduennt(punkte: list[tuple[str, float]]) -> list[tuple[str, float]]:
 
 
 def _gerundet(punkte: list[tuple[str, float]]) -> list[list]:
-    """Ausduennen und runden - vier Nachkommastellen genuegen ueberall."""
-    return [[t, round(w, 4)] for t, w in _ausgeduennt(punkte)]
+    """Ausduennen und auf sechs signifikante Stellen runden.
+
+    Signifikante Stellen statt fester Nachkommastellen: round(w, 4) haette das
+    Kupfer/Gold-Verhaeltnis - Werte um 0,0014 - auf drei Stufen zusammengedrueckt
+    und die Kurve zur Treppe gemacht.
+    """
+    return [[t, float(f"{w:.6g}")] for t, w in _ausgeduennt(punkte)]
 
 
 def schreiben(konf: dict, vorrat: dict[str, Reihe], nur: set[str] | None) -> dict:

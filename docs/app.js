@@ -23,7 +23,7 @@ const FENSTER = {
 };
 
 const TAG = 86400000;
-const zahlformat = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 2 });
+const ACHSENSCHRIFT = '11px ui-monospace, SFMono-Regular, Menlo, monospace';
 const datumformat = new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "short", year: "numeric" });
 
 const charts = new Map();
@@ -48,14 +48,21 @@ function chrom(name) {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
 
-/** Sinnvolle Nachkommastellen: Zinsen brauchen zwei, Indexstaende keine. */
+/** Sinnvolle Nachkommastellen nach Groessenordnung.
+ *
+ *  Nicht nach fester Regel: Zwei Nachkommastellen pauschal machen aus dem
+ *  Kupfer/Gold-Verhaeltnis - Werte um 0,0015 - eine glatte Null.
+ */
 function formatiere(wert, einheit = "") {
   if (wert == null || Number.isNaN(wert)) return "–";
   const betrag = Math.abs(wert);
-  const stellen = betrag >= 1000 ? 0 : betrag >= 100 ? 1 : betrag >= 1 ? 2 : 4;
+  let stellen;
+  if (betrag >= 1000) stellen = 0;
+  else if (betrag >= 100) stellen = 1;
+  else if (betrag >= 0.1 || betrag === 0) stellen = 2;
+  else stellen = Math.min(8, 2 - Math.floor(Math.log10(betrag)));
   const text = new Intl.NumberFormat("de-DE", {
-    minimumFractionDigits: stellen === 4 ? 2 : stellen,
-    maximumFractionDigits: stellen,
+    minimumFractionDigits: stellen, maximumFractionDigits: stellen,
   }).format(wert);
   return einheit ? `${text} ${einheit}` : text;
 }
@@ -191,7 +198,17 @@ class Zeitreihenchart {
     const luft = (oben - unten) * 0.08;
     unten -= luft; oben += luft;
 
-    const rand = { oben: 12, rechts: 10, unten: 26, links: 56 };
+    // Achsenbeschriftung vor dem Layout festlegen, denn ihre Breite bestimmt
+    // den linken Rand. Mit einem festen Rand von 56 Pixeln wurden die
+    // Millionenbetraege der Zentralbankbilanzen aus dem Bild geschoben - die
+    // Y-Achse war dort schlicht leer.
+    ctx.font = ACHSENSCHRIFT;
+    const marken = this._wertmarken(unten, oben);
+    const rand = {
+      oben: 12, rechts: 10, unten: 26,
+      links: Math.min(96, Math.max(40,
+        Math.ceil(Math.max(...marken.map((m) => ctx.measureText(m.text).width))) + 14)),
+    };
     const plotB = breite - rand.links - rand.rechts;
     const plotH = hoehe - rand.oben - rand.unten;
 
@@ -199,7 +216,7 @@ class Zeitreihenchart {
     const y = (w) => rand.oben + (1 - (w - unten) / (oben - unten)) * plotH;
     this._projektion = { x, y, von, bis, unten, oben, rand, plotB, plotH };
 
-    this._raster(ctx, unten, oben, von, bis, rand, plotB, plotH, y, x);
+    this._raster(ctx, marken, unten, oben, von, bis, rand, plotB, plotH, y, x);
     if (this.band && this.band.von.sichtbar) this._bandFlaeche(ctx, von, bis, x, y);
     for (const r of this.sichtbareReihen) this._linie(ctx, r, von, bis, x, y);
     if (this.zeiger != null) this._fadenkreuz(ctx, rand, plotH);
@@ -208,28 +225,48 @@ class Zeitreihenchart {
       "aria-label",
       `${this.daten.titel}. ${this.sichtbareReihen.length} Reihen, Zeitraum ` +
       `${datumformat.format(von)} bis ${datumformat.format(bis)}. ` +
-      `Die Werte stehen zusaetzlich in der Tabellenansicht.`
+      `Die Werte stehen zusätzlich in der Tabellenansicht.`
     );
   }
 
-  _raster(ctx, unten, oben, von, bis, rand, plotB, plotH, y, x) {
+  /** Beschriftete Marken der Wertachse, auf runden Zahlen.
+   *
+   *  Die Nachkommastellen richten sich nach der Schrittweite, nicht nach einem
+   *  festen Format. Ein pauschales Maximum von zwei Nachkommastellen hatte beim
+   *  Kupfer/Gold-Verhaeltnis - Werte um 0,0014 - an jeder Marke schlicht "0"
+   *  stehen lassen.
+   */
+  _wertmarken(unten, oben) {
+    const schritt = this._schrittweite(oben - unten);
+    const stellen = schritt >= 1 ? 0 : Math.min(8, Math.ceil(-Math.log10(schritt)));
+    const format = new Intl.NumberFormat("de-DE", {
+      minimumFractionDigits: stellen, maximumFractionDigits: stellen,
+    });
+    const marken = [];
+    for (let w = Math.ceil(unten / schritt) * schritt; w <= oben; w += schritt) {
+      // Gleitkommareste wie 0.30000000000000004 vor dem Formatieren wegputzen.
+      const wert = Number(w.toFixed(10));
+      marken.push({ wert, text: format.format(wert) });
+    }
+    return marken.length ? marken : [{ wert: unten, text: format.format(unten) }];
+  }
+
+  _raster(ctx, marken, unten, oben, von, bis, rand, plotB, plotH, y, x) {
     const linie = chrom("--raster");
     const achse = chrom("--achse");
     const text = chrom("--ink-gedaempft");
 
-    ctx.font = '11px ui-monospace, SFMono-Regular, Menlo, monospace';
+    ctx.font = ACHSENSCHRIFT;
     ctx.lineWidth = 1;
 
-    // Waagrechte Hilfslinien auf runden Werten.
-    const schritt = this._schrittweite(oben - unten);
     ctx.strokeStyle = linie;
     ctx.fillStyle = text;
     ctx.textAlign = "right";
     ctx.textBaseline = "middle";
-    for (let w = Math.ceil(unten / schritt) * schritt; w <= oben; w += schritt) {
-      const yy = Math.round(y(w)) + 0.5;
+    for (const marke of marken) {
+      const yy = Math.round(y(marke.wert)) + 0.5;
       ctx.beginPath(); ctx.moveTo(rand.links, yy); ctx.lineTo(rand.links + plotB, yy); ctx.stroke();
-      ctx.fillText(zahlformat.format(w), rand.links - 8, yy);
+      ctx.fillText(marke.text, rand.links - 8, yy);
     }
 
     // Nulllinie und Schwellen deutlicher als das Raster.
@@ -723,14 +760,27 @@ function themaSetzen(wert) {
 function warnungen(meta) {
   const echte = (meta.probleme || []).filter((p) => p.status !== "ok");
   if (!echte.length) return;
+
+  // Titel statt Kennung anzeigen: "volatilitaet/vstoxx" sagt einem Leser
+  // nichts, "Volatilitätsindizes VIX und VSTOXX" schon.
+  const titel = new Map(meta.charts.map((c) => [c.id, c.titel]));
+  const reihenname = new Map(
+    meta.charts.flatMap((c) => c.reihen.map((r) => [r.key, r.name])));
+
   const kasten = el("section", "warnung-kasten");
   kasten.append(el("h2", "", `${echte.length} Reihen mit Befund im letzten Lauf`));
   kasten.append(el("p", "", "Die betroffenen Graphen zeigen den letzten erfolgreich " +
     "abgerufenen Stand. Sie sind unten am jeweiligen Indikator gekennzeichnet."));
+
   const liste = el("ul");
   for (const p of echte.slice(0, 12)) {
-    liste.append(el("li", "", `${p.chart} / ${p.reihe} — ${p.status}` +
-      (p.grund ? `: ${p.grund}` : "") + (p.letztes_datum ? ` (Stand ${p.letztes_datum})` : "")));
+    const zeile = el("li");
+    const link = el("a", "", `${titel.get(p.chart) || p.chart} · ${reihenname.get(p.reihe) || p.reihe}`);
+    link.href = `#${p.chart}`;
+    zeile.append(link, document.createTextNode(
+      ` — ${p.status === "veraltet" ? "steht still" : "Abruf gescheitert"}` +
+      (p.letztes_datum ? ` seit ${p.letztes_datum}` : "") + (p.grund ? `: ${p.grund}` : "")));
+    liste.append(zeile);
   }
   kasten.append(liste);
   $("#warnbereich").append(kasten);
@@ -821,33 +871,47 @@ async function start() {
     behaelter.append(abschnitt);
   }
 
-  // Verzoegertes Laden: 34 Graphen auf einmal zu zeichnen kostet spuerbar Zeit.
+  // Verzoegertes Laden: 35 Graphen auf einmal zu zeichnen kostet spuerbar Zeit.
+  // Mit "?alle" laedt die Seite alles sofort - gebraucht zum Ausdrucken, wo
+  // ungeladene Graphen als Luecken erschienen, und beim Pruefen einzelner
+  // Charts ohne Scrollen.
+  const alleSofort = new URLSearchParams(location.search).has("alle");
+
+  const laden = async (knoten) => {
+    if (knoten.dataset.geladen) return;
+    knoten.dataset.geladen = "1";
+    const id = knoten.dataset.laden;
+    try {
+      const daten = await hole(`chart-${id}.json`);
+      const karte = karteBauen(daten, kommentare.charts?.[id]);
+      knoten.replaceWith(karte);
+      charts.get(id).zeichne();
+    } catch (fehler) {
+      knoten.append(el("p", "reihenhinweis", `Konnte nicht geladen werden: ${fehler.message}`));
+    }
+  };
+
+  if (alleSofort) {
+    for (const knoten of document.querySelectorAll("[data-laden]")) await laden(knoten);
+  }
+
   const beobachter = new IntersectionObserver(async (eintraege) => {
     for (const eintrag of eintraege) {
       if (!eintrag.isIntersecting) continue;
-      const knoten = eintrag.target;
-      // unobserve allein genuegt nicht: Zwischen zwei Rueckrufen liegt ein
-      // await, und ein bereits eingereihter zweiter Rueckruf fuer denselben
-      // Knoten laeuft trotzdem noch. Ohne diese Sperre entstuende die Karte
-      // zweimal - die zweite Fassung wuerde den Eintrag in `charts`
-      // ueberschreiben und haenge dann an einem Canvas ausserhalb des
+      // Die Sperre in laden() ist noetig, weil unobserve allein nicht genuegt:
+      // Zwischen zwei Rueckrufen liegt ein await, und ein bereits eingereihter
+      // zweiter Rueckruf fuer denselben Knoten laeuft trotzdem noch. Ohne sie
+      // entstuende die Karte zweimal - die zweite Fassung wuerde den Eintrag in
+      // `charts` ueberschreiben und haenge dann an einem Canvas ausserhalb des
       // Dokuments. Umschalten und Neuzeichnen liefen ins Leere.
-      if (knoten.dataset.geladen) continue;
-      knoten.dataset.geladen = "1";
-      beobachter.unobserve(knoten);
-      const id = knoten.dataset.laden;
-      try {
-        const daten = await hole(`chart-${id}.json`);
-        const karte = karteBauen(daten, kommentare.charts?.[id]);
-        knoten.replaceWith(karte);
-        charts.get(id).zeichne();
-      } catch (fehler) {
-        knoten.append(el("p", "reihenhinweis", `Konnte nicht geladen werden: ${fehler.message}`));
-      }
+      beobachter.unobserve(eintrag.target);
+      await laden(eintrag.target);
     }
   }, { rootMargin: "600px 0px" });
 
-  document.querySelectorAll("[data-laden]").forEach((k) => beobachter.observe(k));
+  if (!alleSofort) {
+    document.querySelectorAll("[data-laden]").forEach((k) => beobachter.observe(k));
+  }
 
   // Scrollspy fuer die Sprungnavigation.
   const spy = new IntersectionObserver((eintraege) => {

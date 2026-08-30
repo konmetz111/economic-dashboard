@@ -43,6 +43,10 @@ aelter als die Daten, vermerkt die Seite auch das im Kopf.
    Sie braucht nur GitHub-Zugriff - sie ruft keine Webseiten ab, sondern liest
    ausschliesslich die committete Datei `data/kennzahlen.json`.
 
+Die Seite laedt die Graphen erst beim Scrollen. `?alle` an die Adresse gehaengt
+laedt alle 35 sofort - gebraucht zum Ausdrucken und beim Pruefen einzelner
+Graphen.
+
 ## Zeitplan
 
 | Stufe | Zeit (UTC) | Was |

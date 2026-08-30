@@ -234,6 +234,28 @@ def indexiert(reihe: Reihe, key: str, basis: float = 100.0) -> Reihe:
                  punkte=[(t, w / start * basis) for t, w in reihe.punkte])
 
 
+def index_ab(reihe: Reihe, key: str, datum: str, basis: float = 100.0) -> Reihe:
+    """Auf einen gemeinsamen Stichtag indexieren.
+
+    Gebraucht fuer die Zentralbankbilanzen: Die Fed rechnet in Dollar, das
+    Eurosystem in Euro, und beide Reihen beginnen zu verschiedenen Zeitpunkten.
+    Roh nebeneinander gelegt waeren sie zwei Groessenordnungen in zwei
+    Waehrungen auf einer Achse - genau die Darstellung, die jede beliebige
+    Korrelation herbeizeichnen kann. Auf einen gemeinsamen Stichtag indexiert
+    zeigen sie das, worauf es ankommt: wer seit wann wie stark ausgeweitet oder
+    abgebaut hat.
+    """
+    anker = reihe.wert_am(datum)
+    if anker in (None, 0):
+        # Ohne Wert am Stichtag den ersten verfuegbaren nehmen, sonst entstuende
+        # stillschweigend eine leere Reihe.
+        if reihe.leer or reihe.punkte[0][1] == 0:
+            return Reihe(key=key)
+        anker = reihe.punkte[0][1]
+    return Reihe(key=key, quelle=f"{reihe.key} indexiert auf {datum}",
+                 punkte=[(t, w / anker * basis) for t, w in reihe.punkte])
+
+
 def qoq_annualisiert(basis: Reihe, key: str) -> Reihe:
     """Quartalsrate auf Jahresrate hochgerechnet - die US-Konvention.
 
