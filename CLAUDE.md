@@ -98,6 +98,19 @@ nicht geloescht werden** - dort liegt dann die einzige Kopie ihrer Historie.
 
 ## Zeitplanung
 
-Cron steht auf Montag 06:00 UTC und ist UTC-fest. Eine in Ortszeit gedachte
+Beide Stufen laufen samstags, und ihre Reihenfolge ist zwingend:
+
+| Stufe | Zeit | Was |
+|---|---|---|
+| 1 | Samstag 04:00 UTC | GitHub Actions holt die Daten und schreibt `data/kennzahlen.json` |
+| 2 | Samstag 05:00 UTC | Cloud-Routine liest diese Datei und schreibt `docs/data/commentary.json` |
+
+Die Stunde dazwischen ist der Puffer. Wer eine der beiden Zeiten aendert, muss
+die andere mitziehen: Laeuft die Routine vor dem Abruf, kommentiert sie die
+Zahlen der Vorwoche - und weil `commentary.json` danach trotzdem gueltig
+aussieht, faellt das nur ueber den Abgleich von `datenstand` auf, den die
+Website im Kopf anzeigt.
+
+Beide Cron-Zeiten sind UTC-fest. Das ist Absicht: Eine in Ortszeit gedachte
 Planung verrutscht bei der Zeitumstellung gegen die Veroeffentlichungstermine
 der Statistikaemter.

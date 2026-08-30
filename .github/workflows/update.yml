@@ -1,9 +1,13 @@
 name: Wochenbriefing aktualisieren
 
-# Einmal woechentlich. Montag 06:00 UTC ist bewusst gewaehlt: Die
-# US-Wochenschlusskurse von Freitag sind dann sicher verbucht, die
-# FINRA-Margin-Daten der Vorwoche stehen, und in Mitteleuropa ist es 07:00 bzw.
-# 08:00 Ortszeit - das Briefing liegt zum Wochenstart bereit.
+# Einmal woechentlich, Samstag 04:00 UTC. Zum Zeitpunkt der Ausfuehrung sind
+# die US-Schlusskurse vom Freitag sicher verbucht und die Woche vollstaendig
+# erfasst.
+#
+# Die Stunde ist nicht frei waehlbar: Stufe 2, die Kommentar-Routine, laeuft
+# samstags um 05:00 UTC. Sie liest, was dieser Lauf schreibt. Wer diesen Cron
+# nach hinten schiebt, muss die Routine mitverschieben - sonst kommentiert sie
+# die Zahlen der Vorwoche, ohne dass es auffiele.
 #
 # Die Cron-Zeit ist UTC-fest. Das ist Absicht: Eine in Ortszeit gedachte
 # Planung verrutscht bei der Zeitumstellung gegen die Veroeffentlichungstermine
@@ -11,7 +15,7 @@ name: Wochenbriefing aktualisieren
 
 on:
   schedule:
-    - cron: "0 6 * * 1"
+    - cron: "0 4 * * 6"
   workflow_dispatch:
     inputs:
       nur:

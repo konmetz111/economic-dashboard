@@ -39,10 +39,29 @@ aelter als die Daten, vermerkt die Seite auch das im Kopf.
    Branch `main`, Ordner `/docs`.
 4. **Ersten Lauf ausloesen** unter *Actions -> Wochenbriefing aktualisieren ->
    Run workflow*.
-5. **Cloud-Routine einrichten**, die woechentlich nach Stufe 1 laeuft und
-   `prompt/kommentar-prompt.md` als Auftrag bekommt. Sie braucht nur
-   GitHub-Zugriff - sie ruft keine Webseiten ab, sondern liest ausschliesslich
-   die committete Datei `data/kennzahlen.json`.
+5. **Cloud-Routine einrichten** mit `prompt/kommentar-prompt.md` als Auftrag.
+   Sie braucht nur GitHub-Zugriff - sie ruft keine Webseiten ab, sondern liest
+   ausschliesslich die committete Datei `data/kennzahlen.json`.
+
+## Zeitplan
+
+| Stufe | Zeit (UTC) | Was |
+|---|---|---|
+| 1 | Samstag 04:00 | Actions holt die Daten und rechnet die Kennzahlen |
+| 2 | Samstag 05:00 | Routine formuliert die Kommentare und committet sie |
+
+Die Reihenfolge ist zwingend, die Stunde dazwischen der Puffer. Wer eine Zeit
+aendert, muss die andere mitziehen - laeuft die Routine vor dem Abruf,
+kommentiert sie die Zahlen der Vorwoche.
+
+## Sichtbarkeit
+
+Die Seite traegt `<meta name="robots" content="noindex, nofollow">` und taucht
+damit in keiner Suchmaschine auf. **Oeffentlich erreichbar bleibt sie
+trotzdem** - GitHub Pages kennt fuer oeffentliche Repositories keinen
+Zugriffsschutz. Wer die Adresse kennt, kommt hinein. Wirklich nicht-oeffentlich
+wird die Seite nur mit einem privaten Repository und GitHub Pages im
+Enterprise-Tarif, oder indem man sie woanders hinter einer Anmeldung ausliefert.
 
 ## Lokal ausfuehren
 
