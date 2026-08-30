@@ -1,0 +1,85 @@
+name: Wochenbriefing aktualisieren
+
+# Einmal woechentlich. Montag 06:00 UTC ist bewusst gewaehlt: Die
+# US-Wochenschlusskurse von Freitag sind dann sicher verbucht, die
+# FINRA-Margin-Daten der Vorwoche stehen, und in Mitteleuropa ist es 07:00 bzw.
+# 08:00 Ortszeit - das Briefing liegt zum Wochenstart bereit.
+#
+# Die Cron-Zeit ist UTC-fest. Das ist Absicht: Eine in Ortszeit gedachte
+# Planung verrutscht bei der Zeitumstellung gegen die Veroeffentlichungstermine
+# der Statistikaemter, die ihrerseits UTC- bzw. ortsfest sind.
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      nur:
+        description: "Nur diese Chart-IDs aktualisieren (Kommaliste, leer = alle)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: briefing-aktualisieren
+  cancel-in-progress: false
+
+jobs:
+  aktualisieren:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Abhaengigkeiten installieren
+        run: pip install -r requirements.txt
+
+      - name: Daten abrufen
+        id: daten
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python scripts/build_data.py ${{ github.event.inputs.nur && format('--nur {0}', github.event.inputs.nur) || '' }}
+
+      - name: Kommentare erzeugen
+        # Laeuft auch ohne Schluessel - dann rein regelbasiert. Ein fehlender
+        # oder abgelaufener Anthropic-Schluessel darf das Briefing nicht
+        # verhindern, sondern nur seine Sprache nuechterner machen.
+        if: steps.daten.outcome == 'success'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python scripts/build_commentary.py
+
+      - name: Ergebnis committen
+        # Nur bei erfolgreichem Datenlauf. Bricht build_data.py wegen
+        # Totalausfall ab, wird bewusst nichts committet - sonst wuerde die
+        # Seite eine leere oder halbe Datenlage als aktuellen Stand ausgeben.
+        if: steps.daten.outcome == 'success'
+        run: |
+          git config user.name  "briefing-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/series docs/data
+          if git diff --cached --quiet; then
+            echo "Keine Aenderungen - nichts zu committen."
+            exit 0
+          fi
+          git commit -m "Datenstand $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      - name: Lauflog sichern
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lauflog
+          path: |
+            docs/data/meta.json
+          if-no-files-found: ignore
+          retention-days: 30

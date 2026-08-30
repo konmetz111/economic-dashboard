@@ -1,0 +1,981 @@
+# Einzige Wahrheitsquelle des Dashboards.
+#
+# Jeder Eintrag unter "charts" erzeugt genau einen Graphen auf der Website,
+# inklusive Erklaertext darueber und Kommentar darunter. Wer einen Indikator
+# hinzufuegen will, aendert diese Datei - sonst nichts.
+#
+# Feld "adapter" waehlt das Abrufmodul in scripts/sources/. Faellt eine Quelle
+# aus, schreibt der Abruf einen Fehlermarker in die Reihe und laesst die alten
+# Werte stehen; die Website kennzeichnet das sichtbar. Stillschweigend veraltete
+# Zahlen darf es nicht geben - siehe README, Abschnitt "Ausfallverhalten".
+
+meta:
+  titel: Volkswirtschaftliches Wochenbriefing
+  untertitel: Geldpolitik, Liquiditaet, Bewertung und Konjunktur in USA, Euroraum und Japan
+  standard_fenster: 10y
+  fenster: [max, 10y, 5y, 2y, 6m, 1m]
+
+gruppen:
+  - id: geldpolitik
+    titel: Geldpolitik
+    einleitung: >-
+      Nicht der aktuelle Zins bewegt Maerkte, sondern die Aenderung der Erwartung
+      ueber den kuenftigen Pfad. Geldpolitik wirkt mit langen und variablen
+      Verzoegerungen, meist zwoelf bis achtzehn Monate.
+
+  - id: liquiditaet
+    titel: Liquiditaet und Kredit
+    einleitung: >-
+      Die mit Abstand nuetzlichste Gruppe. Kreditbedingungen wirken auf
+      Realwirtschaft und Kurse mit Vorlauf - hier stehen die Indikatoren mit der
+      laengsten und verlaesslichsten Vorwarnzeit.
+
+  - id: bewertung
+    titel: Bewertung des Aktienmarktes
+    einleitung: >-
+      Bewertungskennzahlen beantworten nicht die Frage, ob es naechstes Jahr
+      steigt, sondern was ueber zehn Jahre zu erwarten ist. Als Timing-Werkzeug
+      taugen sie nicht, als Erwartungsanker sind sie unverzichtbar.
+
+  - id: psychologie
+    titel: Marktpsychologie und Positionierung
+    einleitung: >-
+      Diese Gruppe funktioniert nur an Extremen und dann meist gegen die
+      Mehrheit. Dazwischen ist sie Rauschen - und was Anleger tun, wiegt
+      schwerer als das, was sie in Umfragen sagen.
+
+  - id: realwirtschaft
+    titel: Realwirtschaft
+    einleitung: >-
+      Der Zustand der Volkswirtschaft selbst. Die Umfragen darin sind schnell und
+      ungenau, die harten Zahlen langsam und revidiert - beides braucht man.
+
+  - id: rohstoffe
+    titel: Rohstoffe und Waehrung
+    einleitung: >-
+      Rohstoffe werden rund um die Uhr gehandelt und reagieren auf
+      Nachfrageaenderungen, bevor sie in Statistiken auftauchen.
+
+  - id: zusammenfassend
+    titel: Zusammenfassende Fruehindikatoren
+    einleitung: >-
+      Fertig gebuendelte Kombinationen aus mehreren Einzelindikatoren. Bequem -
+      und entsprechend anfaellig fuer Fehlalarme, wenn sich die Struktur der
+      Wirtschaft unter den Komponenten veraendert.
+
+# Rohreihen werden abgerufen, aber nicht selbst gezeichnet. Sie sind die
+# Eingangsgroessen der "berechnet"-Reihen weiter unten. Der Abruf loest die
+# Abhaengigkeiten selbst auf: Was hier steht, wird geholt, bevor gerechnet wird.
+rohreihen:
+  m2_us:            {adapter: fred,   args: {series_id: M2SL}}
+  m3_ea:            {adapter: ecb,    args: {flow: BSI, key: M.U2.Y.V.M30.X.1.U2.2300.Z01.E}}
+  cpi_kern_us:      {adapter: fred,   args: {series_id: CPILFESL}}
+  hvpi_kern_ea:     {adapter: ecb,    args: {flow: ICP, key: M.U2.N.XEF000.4.INX}}
+  dgs1:             {adapter: fred,   args: {series_id: DGS1}}
+  dgs2:             {adapter: fred,   args: {series_id: DGS2}}
+  dgs10:            {adapter: fred,   args: {series_id: DGS10}}
+  ea_kurve_1j:      {adapter: ecb,    args: {flow: YC, key: B.U2.EUR.4F.G_N_A.SV_C_YM.SR_1Y}}
+  ea_kurve_2j:      {adapter: ecb,    args: {flow: YC, key: B.U2.EUR.4F.G_N_A.SV_C_YM.SR_2Y}}
+  ea_kurve_10j:     {adapter: ecb,    args: {flow: YC, key: B.U2.EUR.4F.G_N_A.SV_C_YM.SR_10Y}}
+  bund10j:          {adapter: fred,   args: {series_id: IRLTLT01DEM156N}}
+  cn_kredit_bip:    {adapter: fred,   args: {series_id: CRDQCNAPABIS}}
+  bip_us_nominal:   {adapter: fred,   args: {series_id: GDP}}
+  bip_ea_niveau:    {adapter: fred,   args: {series_id: CLVMNACSCAB1GQEA19}}
+  # Die Zahlen sind Millionen USD, das nominale US-BIP steht in Milliarden -
+  # ohne diesen Faktor waere der Buffett-Indikator um das Tausendfache daneben.
+  wilshire_ersatz:  {adapter: fred,   args: {series_id: NCBEILQ027S, faktor: 0.001}}
+  retail_us:        {adapter: fred,   args: {series_id: RSAFS}}
+  retail_ea:        {adapter: ecb,    args: {flow: STS, key: M.I9.Y.TOVV.2G4700.4.000}}
+  indpro_us:        {adapter: fred,   args: {series_id: INDPRO}}
+  indpro_ea:        {adapter: ecb,    args: {flow: STS, key: M.I9.Y.PROD.NS0020.4.000}}
+  us_gewinnrendite: {adapter: shiller, args: {feld: gewinnrendite}}
+  margin_debt_abs:  {adapter: finra,  args: {spalte: debit_balances}}
+  brk_cash:         {adapter: sec_edgar, args: {cik: "0001067983", konzept: cash_und_kurzfrist}}
+  brk_assets:       {adapter: sec_edgar, args: {cik: "0001067983", konzept: assets}}
+  rsp:              {adapter: yahoo,  args: {symbol: RSP}}
+  spy:              {adapter: yahoo,  args: {symbol: SPY}}
+  philly_fed_roh:   {adapter: fred,   args: {series_id: GACDFSA066MSFRBPHI}}
+  # Der ESI der EU-Kommission liegt nicht im EZB-Portal. Genutzt wird der
+  # OECD-Geschaeftsklimaindikator fuer den Euroraum, den FRED spiegelt.
+  esi_ea_roh:       {adapter: fred,   args: {series_id: BSCICP02EZM460S}}
+
+charts:
+
+  # ------------------------------------------------------------------ #
+  # Geldpolitik                                                        #
+  # ------------------------------------------------------------------ #
+
+  - id: eurusd
+    gruppe: geldpolitik
+    titel: EUR/USD
+    einheit: USD je EUR
+    aussagekraft: >-
+      Der Wechselkurs ist der sichtbarste Preis fuer den Zinsunterschied zwischen
+      Fed und EZB: Er verschiebt Exportgewinne, importierte Inflation und die
+      Rendite jedes nicht abgesicherten Auslandsinvestments.
+    quelle: FRED (DEXUSEU)
+    reihen:
+      - key: eurusd
+        name: EUR/USD
+        adapter: fred
+        args: {series_id: DEXUSEU}
+
+  - id: leitzinsen
+    gruppe: geldpolitik
+    titel: Leitzinsen der Notenbanken
+    einheit: "% p. a."
+    aussagekraft: >-
+      Der geldpolitische Beschluss selbst - bei der Fed das Zielband fuer den
+      Tagesgeldsatz, bei der EZB der Hauptrefinanzierungssatz, zu dem sich Banken
+      woechentlich Geld leihen, und bei der Bank of Japan der Zielsatz fuer
+      unbesichertes Tagesgeld.
+    schwaeche: >-
+      Die erste Zinssenkung wird gern als Kaufsignal gelesen, war historisch aber
+      oft das Gegenteil: gesenkt wird, weil etwas bricht. Die Senkungszyklen 2001
+      und 2007 begannen jeweils vor den schwersten Kursverlusten.
+    quelle: FRED (DFEDTARU, DFEDTARL, ECBMRRFR) und OECD ueber FRED fuer Japan
+    # Ober- und Untergrenze des Fed-Zielbands sind eine Aussage, nicht zwei.
+    # Der Renderer fuellt die Flaeche dazwischen und fuehrt sie als einen
+    # Legendeneintrag - sonst belegte eine einzige Groesse zwei Farbslots.
+    band: {von: fed_ziel_unter, bis: fed_ziel_ober, name: Fed-Zielband}
+    reihen:
+      - key: fed_ziel_ober
+        name: Fed-Zielband, Obergrenze
+        adapter: fred
+        args: {series_id: DFEDTARU}
+      - key: fed_ziel_unter
+        name: Fed-Zielband, Untergrenze
+        adapter: fred
+        args: {series_id: DFEDTARL}
+      - key: ezb_mro
+        name: EZB-Hauptrefinanzierungssatz
+        adapter: fred
+        args: {series_id: ECBMRRFR}
+      - key: boj_leitzins
+        name: BoJ-Tagesgeldsatz
+        adapter: fred
+        args: {series_id: IRSTCI01JPM156N}
+        hinweis: >-
+          Die Bank of Japan veroeffentlicht kein maschinenlesbares Zielband.
+          Abgebildet ist der tatsaechlich gehandelte unbesicherte Tagesgeldsatz,
+          den die BoJ als Operationsziel steuert.
+
+  - id: fedfunds_einlagesatz
+    gruppe: geldpolitik
+    titel: Fed Funds Rate und EZB-Einlagesatz
+    einheit: "% p. a."
+    aussagekraft: >-
+      Die beiden Saetze, an denen sich der Geldmarkt tatsaechlich orientiert: die
+      Effective Fed Funds Rate ist der real gehandelte Tagesgeldsatz innerhalb des
+      Fed-Zielbands, der EZB-Einlagesatz die Verzinsung ueberschuessiger
+      Bankreserven und damit der Anker fuer Tagesgeld- und Sparzinsen im Euroraum.
+    quelle: FRED (EFFR, ECBDFR)
+    reihen:
+      - key: effr
+        name: Effective Fed Funds Rate
+        adapter: fred
+        args: {series_id: EFFR}
+      - key: ezb_einlagesatz
+        name: EZB-Einlagesatz
+        adapter: fred
+        args: {series_id: ECBDFR}
+
+  - id: realzins
+    gruppe: geldpolitik
+    titel: Realzins USA und Euroraum
+    einheit: Prozentpunkte
+    aussagekraft: >-
+      Aussagekraeftiger als der Nominalzins ist der Realzins - Leitzins minus
+      Inflation: Liegt er ueber dem neutralen Zins, bremst die Geldpolitik die
+      Wirtschaft, liegt er darunter, befeuert sie sie.
+    quelle: Berechnet aus FRED (EFFR minus CPILFESL-Jahresrate; ECBDFR minus Kern-HVPI-Jahresrate)
+    reihen:
+      - key: realzins_us
+        name: Realzins USA
+        adapter: berechnet
+        args:
+          formel: differenz
+          minuend: effr
+          subtrahend: kern_cpi_us
+      - key: realzins_ea
+        name: Realzins Euroraum
+        adapter: berechnet
+        args:
+          formel: differenz
+          minuend: ezb_einlagesatz
+          subtrahend: kern_hvpi_ea
+
+  - id: zinspfad
+    gruppe: geldpolitik
+    titel: Erwarteter Zinspfad
+    einheit: "% p. a."
+    aussagekraft: >-
+      Was der Markt an kuenftigen Zinsschritten bereits eingepreist hat -
+      abgelesen am Abstand zwischen kurzen und mittleren Laufzeiten, der die
+      erwartete durchschnittliche Tagesgeldverzinsung der kommenden Jahre enthaelt.
+    schwaeche: >-
+      Ersatzkonstruktion. Fed-Funds-Futures und OeSTR-Forwards selbst sind
+      lizenzpflichtige CME- und Eurex-Daten. Der hier gezeigte Forward-Pfad aus
+      der Staatsanleihekurve trifft dieselbe Aussage, enthaelt aber zusaetzlich
+      eine Laufzeitpraemie und ist deshalb nicht deckungsgleich mit den Futures.
+    quelle: Berechnet aus FRED-Treasury-Kurve (DGS1, DGS2) und EZB-Zinsstrukturkurve
+    reihen:
+      - key: fwd_us_1j_in_1j
+        name: USA, erwarteter Satz in einem Jahr
+        adapter: berechnet
+        args:
+          formel: forward_1j1j
+          kurz: dgs1
+          lang: dgs2
+      - key: fwd_ea_1j_in_1j
+        name: Euroraum, erwarteter Satz in einem Jahr
+        adapter: berechnet
+        args:
+          formel: forward_1j1j
+          kurz: ea_kurve_1j
+          lang: ea_kurve_2j
+
+  - id: geldmenge
+    gruppe: geldpolitik
+    titel: Geldmenge M2 (USA) und M3 (Euroraum)
+    einheit: "% gegenueber Vorjahr"
+    aussagekraft: >-
+      Die Jahresveraenderungsrate der breiten Geldmenge zeigt, ob dem
+      Wirtschaftskreislauf Kaufkraft zugefuehrt oder entzogen wird - ein
+      Schrumpfen ist historisch selten und fiel zuletzt 2022/23 mit dem Stress bei
+      US-Regionalbanken zusammen.
+    schwaeche: >-
+      Der Zusammenhang zwischen Geldmenge und Aktienkursen ist locker und
+      instabil, nicht mechanisch.
+    quelle: FRED (M2SL) und EZB Data Portal (BSI M3)
+    reihen:
+      - key: m2_us_yoy
+        name: M2 USA
+        adapter: berechnet
+        args: {formel: jahresrate, basis: m2_us}
+      - key: m3_ea_yoy
+        name: M3 Euroraum
+        adapter: berechnet
+        args: {formel: jahresrate, basis: m3_ea}
+
+  - id: zentralbankbilanz
+    gruppe: geldpolitik
+    titel: Zentralbankbilanzen - Anleihekaeufe und Bilanzabbau
+    einheit: Bilanzsumme, indexiert auf 100
+    aussagekraft: >-
+      Anleihekaeufe (QE) schaffen Bankreserven, Bilanzabbau (QT) zieht sie wieder
+      ab - beides ist dieselbe Zeitreihe in zwei Phasen, und ihre Steigung ist der
+      eigentliche Liquiditaetsimpuls.
+    hinweis: >-
+      QE und QT sind bewusst nicht als zwei Reihen dargestellt, weil es
+      physisch eine einzige Bilanzsumme ist. Steigende Kurve gleich QE, fallende
+      Kurve gleich QT; die Phasen sind im Chart farblich unterlegt.
+    quelle: FRED (WALCL) und EZB Data Portal (ILM Bilanzsumme Eurosystem)
+    reihen:
+      - key: fed_bilanz
+        name: Fed-Bilanzsumme
+        adapter: fred
+        args: {series_id: WALCL}
+      - key: ezb_bilanz
+        name: Eurosystem-Bilanzsumme
+        adapter: ecb
+        args: {flow: ILM, key: W.U2.C.T000000.Z5.Z01}
+
+  - id: zinskurve
+    gruppe: geldpolitik
+    titel: Zinskurven-Spread USA und Eurozone
+    einheit: Prozentpunkte
+    aussagekraft: >-
+      Die Differenz zwischen zehn- und zweijaehrigen Staatsanleiherenditen; wird
+      sie negativ, erwartet der Markt, dass die Notenbank die Zinsen bald senken
+      muss - also dass die Wirtschaft kippt.
+    schwaeche: >-
+      Der lange Vorlauf von sechs bis vierundzwanzig Monaten ist als
+      Timing-Instrument fast wertlos; 2022 bis 2024 war die US-Kurve ueber zwanzig
+      Monate invertiert, ohne dass eine Rezession folgte. Der eigentliche Alarm ist
+      nicht die Inversion, sondern die anschliessende Versteilerung.
+    nulllinie: true
+    quelle: FRED (T10Y2Y) und EZB-Zinsstrukturkurve (10J-Bund minus 2J-Schatz)
+    reihen:
+      - key: spread_us
+        name: USA, 10J minus 2J
+        adapter: fred
+        args: {series_id: T10Y2Y}
+      - key: spread_ea
+        name: Eurozone, 10J-Bund minus 2J-Schatz
+        adapter: berechnet
+        args:
+          formel: differenz
+          minuend: ea_kurve_10j
+          subtrahend: ea_kurve_2j
+
+  - id: kreditimpuls_china
+    gruppe: geldpolitik
+    titel: Chinesischer Kreditimpuls
+    einheit: Prozentpunkte des BIP
+    aussagekraft: >-
+      Die Veraenderung der Neukreditvergabe im Verhaeltnis zum BIP laeuft globalen
+      Industrie- und Rohstoffzyklen typischerweise zwei bis drei Quartale voraus -
+      besonders relevant fuer europaeische Industriewerte.
+    schwaeche: >-
+      Ersatzkonstruktion. Die offizielle Kennzahl beruht auf der Total Social
+      Financing der PBoC, fuer die es keine freie Schnittstelle gibt. Gerechnet
+      wird hier aus den BIS-Daten zur Gesamtverschuldung des privaten
+      Nichtfinanzsektors - dieselbe Logik, aber quartalsweise und mit Meldeverzug.
+    nulllinie: true
+    quelle: BIS ueber FRED (CRDQCNAPABIS), Impuls als zweite Ableitung gerechnet
+    reihen:
+      - key: kreditimpuls_cn
+        name: Kreditimpuls China
+        adapter: berechnet
+        args: {formel: kreditimpuls, basis: cn_kredit_bip}
+
+  # ------------------------------------------------------------------ #
+  # Liquiditaet und Kredit                                             #
+  # ------------------------------------------------------------------ #
+
+  - id: kreditstandards
+    gruppe: liquiditaet
+    titel: Kreditvergabestandards der Banken
+    einheit: Nettoanteil verschaerfender Banken in %
+    aussagekraft: >-
+      Der Nettoanteil der Banken, die ihre Kreditvergabestandards verschaerft
+      haben, ist einer der besten Fruehindikatoren ueberhaupt, weil er genau die
+      Stelle misst, an der Geldpolitik in die Realwirtschaft uebertritt.
+    schwaeche: >-
+      Nur vierteljaehrlich und mit Meldeverzug; die Umfrage sagt, was Banken
+      angeben zu tun, nicht was sie tun. Private Credit waechst ausserhalb dieser
+      Erhebung.
+    nulllinie: true
+    quelle: Fed SLOOS ueber FRED (DRTSCILM) und EZB Bank Lending Survey (SDMX)
+    reihen:
+      - key: sloos_us
+        name: USA (SLOOS, Unternehmenskredite)
+        adapter: fred
+        args: {series_id: DRTSCILM}
+      - key: bls_ea
+        name: Euroraum (EZB Bank Lending Survey)
+        adapter: ecb
+        args: {flow: BLS, key: Q.U2.ALL.CP.E.Z.B3.ST.S.WFNET}
+
+  - id: fci
+    gruppe: liquiditaet
+    titel: Financial Conditions Index
+    einheit: Standardabweichungen vom Mittel
+    aussagekraft: >-
+      Buendelt Zins, Kreditaufschlag, Dollar und Aktienbewertung zu einem einzigen
+      Mass dafuer, wie restriktiv die Finanzierungsbedingungen insgesamt sind -
+      oft aussagekraeftiger als der Leitzins allein.
+    hinweis: Werte ueber null bedeuten straffere, Werte unter null lockerere Bedingungen als im historischen Mittel.
+    nulllinie: true
+    quelle: Chicago Fed ueber FRED (NFCI)
+    reihen:
+      - key: nfci
+        name: Chicago Fed NFCI
+        adapter: fred
+        args: {series_id: NFCI}
+
+  - id: kreditspreads
+    gruppe: liquiditaet
+    titel: Kreditrisikoaufschlaege
+    einheit: Basispunkte
+    aussagekraft: >-
+      Der Renditeaufschlag von Unternehmensanleihen gegenueber Staatsanleihen ist
+      der Preis, den der Markt fuer Ausfallrisiko verlangt - der Anleihemarkt
+      riecht Stress meist vor dem Aktienmarkt.
+    schwaeche: >-
+      Wichtiger als das Niveau ist die Ausweitungsgeschwindigkeit. Enge Spreads
+      koennen jahrelang eng bleiben, und die Indexzusammensetzung hat sich ueber
+      die Zeit zu besseren Bonitaeten verschoben.
+    schwellen: [{wert: 300, label: "sorglos"}, {wert: 800, label: "Stress"}]
+    quelle: ICE BofA ueber FRED (BAMLH0A0HYM2, BAMLC0A0CM)
+    reihen:
+      - key: hy_spread
+        name: High Yield (OAS)
+        adapter: fred
+        args: {series_id: BAMLH0A0HYM2, faktor: 100}
+      - key: ig_spread
+        name: Investment Grade (OAS)
+        adapter: fred
+        args: {series_id: BAMLC0A0CM, faktor: 100}
+
+  # ------------------------------------------------------------------ #
+  # Bewertung                                                          #
+  # ------------------------------------------------------------------ #
+
+  - id: cape
+    gruppe: bewertung
+    titel: Shiller-CAPE
+    einheit: Kurs-Gewinn-Verhaeltnis
+    aussagekraft: >-
+      Der Kurs geteilt durch den inflationsbereinigten Durchschnittsgewinn der
+      vergangenen zehn Jahre - er erklaert einen erheblichen Teil der realen
+      Zehnjahresrendite und praktisch nichts von der Rendite der naechsten zwoelf
+      Monate.
+    schwaeche: >-
+      Der Vergleich mit dem Mittelwert seit 1881 ist irrefuehrend: geaenderte
+      Rechnungslegung, Rueckkaeufe statt Dividenden und ein hoeherer Anteil
+      kapitalarmer Technologiefirmen heben das strukturelle Niveau. Sinnvoller ist
+      der Vergleich mit dem eigenen 25- bis 30-Jahres-Mittel.
+    quelle: Robert Shiller, Yale (ie_data.xls); Europa aus iShares-Fondskennzahlen aufgebaut
+    reihen:
+      - key: cape_us
+        name: CAPE USA (S&P 500)
+        adapter: shiller
+        args: {feld: cape}
+      - key: cape_eu
+        name: CAPE Europa (MSCI Europe)
+        verfuegbar: false
+        grund: >-
+          Der geplante Aufbauweg hat sich im Test als Sackgasse erwiesen.
+          Vorgesehen war, das nachlaufende KGV von der iShares-Produktseite zu
+          lesen und woechentlich fortzuschreiben, bis nach zehn Jahren ein
+          echtes CAPE entsteht. BlackRock liefert die Kennzahl aber nicht im
+          Seitenquelltext, sondern laedt sie ueber eine Schnittstelle nach, die
+          ohne Sitzungskennung nicht erreichbar ist. Damit gibt es nichts
+          fortzuschreiben. Sobald eine freie Quelle fuer die Gewinne eines
+          europaeischen Index auftaucht, beginnt der Aufbau.
+
+  - id: buffett
+    gruppe: bewertung
+    titel: Buffett-Indikator
+    einheit: Marktkapitalisierung in % des BIP
+    aussagekraft: >-
+      Die gesamte Boersenkapitalisierung im Verhaeltnis zum nominalen
+      Bruttoinlandsprodukt - von Buffett 2001 als wahrscheinlich bestes Einzelmass
+      dafuer bezeichnet, wo Bewertungen zu einem gegebenen Zeitpunkt stehen.
+    schwaeche: >-
+      Zaehler und Nenner passen nicht zusammen: Die Gewinne boersennotierter
+      Konzerne stammen zunehmend aus dem Ausland, das BIP misst nur
+      Inlandsproduktion. Der Indikator steigt strukturell - relevanter als das
+      Niveau ist die Abweichung vom eigenen Trend.
+    schwellen: [{wert: 75, label: "guenstig"}, {wert: 100, label: "fair"}, {wert: 150, label: "teuer"}]
+    hinweis: >-
+      Als Zaehler dient nicht der Wilshire 5000 - dessen FRED-Reihen wurden
+      eingestellt und antworten mit HTTP 400 -, sondern der Bestand an
+      Unternehmensaktien aus der Finanzierungsrechnung der Fed (Z.1). Das ist
+      die Groesse, mit der der Indikator ueblicherweise gerechnet wird. Sie
+      erscheint quartalsweise und mit einigen Monaten Verzug.
+    quelle: Berechnet aus FRED (NCBEILQ027S geteilt durch GDP)
+    reihen:
+      - key: buffett_us
+        name: Buffett-Indikator USA
+        adapter: berechnet
+        args: {formel: quotient_prozent, zaehler: wilshire_ersatz, nenner: bip_us_nominal}
+
+  - id: erp
+    gruppe: bewertung
+    titel: Aktienrisikopraemie
+    einheit: Prozentpunkte
+    aussagekraft: >-
+      Die Gewinnrendite - der Kehrwert des KGV - abzueglich der Rendite
+      zehnjaehriger Staatsanleihen beantwortet die Frage, wie viel man dafuer
+      bezahlt bekommt, statt sicherer Zinsen Aktienrisiko zu tragen.
+    schwaeche: >-
+      In dieser klassischen Form vergleicht sie eine reale mit einer nominalen
+      Groesse und ueberschaetzt Aktien in Hochinflationsphasen systematisch.
+    hinweis: Werte nahe null oder negativ heissen, dass Anleihen relativ das bessere Geschaeft sind.
+    nulllinie: true
+    quelle: Berechnet aus Shiller-Gewinnrendite gegen FRED DGS10; Europa aus iShares-Fondskennzahlen gegen die 10J-Bundrendite
+    reihen:
+      - key: erp_us
+        name: USA gegen 10J-Treasuries
+        adapter: berechnet
+        args:
+          formel: differenz
+          minuend: us_gewinnrendite
+          subtrahend: dgs10
+      - key: erp_eu
+        name: Europa gegen 10J-Bund
+        verfuegbar: false
+        grund: >-
+          Scheitert an derselben fehlenden Gewinnbasis wie das CAPE Europa. Die
+          Bundrendite liegt frei vor, die Gewinnrendite eines europaeischen
+          Index nicht. Anders als beim CAPE waere hier kein Aufbau noetig - ein
+          einziger laufender Wert wuerde genuegen -, es gibt ihn nur nirgends
+          maschinenlesbar.
+
+  - id: kgv
+    gruppe: bewertung
+    titel: Kurs-Gewinn-Verhaeltnis der Indizes
+    einheit: KGV
+    aussagekraft: >-
+      Das Verhaeltnis von Indexstand zu Unternehmensgewinn - langfristig folgen
+      Kurse den Gewinnen, und ein steigender Index bei stagnierenden Gewinnen ist
+      reine Bewertungsausweitung.
+    schwaeche: >-
+      Gewuenscht war das Forward-KGV auf Basis von Analystenschaetzungen. Diese
+      Schaetzungen sind das Kerngeschaeft von FactSet, LSEG und Bloomberg und
+      nirgends frei verfuegbar. Gezeigt wird deshalb das nachlaufende KGV auf
+      Basis berichteter Gewinne. Es reagiert traeger und sieht am Rezessionstief -
+      bei eingebrochenen Gewinnen - optisch am teuersten aus.
+    quelle: Shiller-Datensatz (S&P 500) und iShares-Fondskennzahlen (MSCI World, DAX, ATX)
+    reihen:
+      - key: kgv_sp500
+        name: S&P 500
+        adapter: shiller
+        args: {feld: pe_trailing}
+      - key: kgv_msci_world
+        name: MSCI World
+        verfuegbar: false
+        grund: >-
+          Wie beim CAPE Europa: Die Fondskennzahl steht nicht im Quelltext der
+          iShares-Produktseite, sondern wird nachgeladen. Fuer den S&P 500
+          liefert der Shiller-Datensatz das nachlaufende KGV frei, fuer den
+          MSCI World gibt es keine Entsprechung.
+      - key: kgv_dax
+        name: DAX
+        verfuegbar: false
+        grund: >-
+          Kein frei abrufbarer Kennzahlenanbieter. Die deutschen
+          Fondsproduktseiten von BlackRock und der Deutschen Boerse geben das
+          KGV nur als Grafik oder hinter einer Anlegerabfrage aus, die sich
+          nicht automatisieren laesst.
+      - key: kgv_atx
+        name: ATX
+        verfuegbar: false
+        grund: >-
+          Fuer den ATX existiert kein Indexfonds mit oeffentlicher
+          Kennzahlenseite. Die Wiener Boerse veroeffentlicht das KGV nur im
+          kostenpflichtigen Datenpaket.
+
+  # ------------------------------------------------------------------ #
+  # Marktpsychologie                                                   #
+  # ------------------------------------------------------------------ #
+
+  - id: berkshire
+    gruppe: psychologie
+    titel: Kassequote von Berkshire Hathaway
+    einheit: Zahlungsmittel in % der Bilanzsumme
+    aussagekraft: >-
+      Buffetts Kassequote ist eine Bewertungsaussage in Handlung uebersetzt: Hohe
+      Cash-Bestaende signalisierten in der Vergangenheit einen Mangel an attraktiv
+      bepreisten Gelegenheiten.
+    schwaeche: >-
+      Abgebildet sind Zahlungsmittel und Zahlungsmitteläquivalente nach der
+      XBRL-Kennzeichnung der Pflichtveroeffentlichung. Der oft zitierte
+      Gesamtbestand von Berkshire ist deutlich groesser, weil er kurzlaufende
+      US-Staatsanleihen enthaelt - und genau die tragen in den SEC-Daten kein
+      eigenes Konzept, sondern stecken in dimensionierten Fakten, welche die
+      Schnittstelle nicht einzeln ausgibt. Das Niveau dieser Reihe ist deshalb
+      nicht mit Presseangaben vergleichbar; ihre Veraenderung ist es.
+    quelle: SEC EDGAR XBRL, CIK 0001067983 (quartalsweise aus 10-Q und 10-K)
+    frequenz: quartalsweise
+    reihen:
+      - key: brk_kassequote
+        name: Kassequote
+        adapter: berechnet
+        args: {formel: quotient_prozent, zaehler: brk_cash, nenner: brk_assets}
+
+  - id: berkshire_cash
+    gruppe: psychologie
+    titel: Berkshire Hathaway - Cash absolut
+    einheit: Mrd. USD
+    aussagekraft: >-
+      Der absolute Bestand zeigt die Groessenordnung der Mittel, die auf eine
+      Gelegenheit warten - relevant, weil eine gleichbleibende Quote bei
+      wachsender Bilanz einen erheblich groesseren Betrag bedeutet.
+    schwaeche: >-
+      Wie bei der Kassequote: ohne die kurzlaufenden Staatsanleihen, die in den
+      XBRL-Daten kein eigenes Konzept tragen. Der Stand liegt damit deutlich
+      unter den ueblichen Presseangaben.
+    hinweis: >-
+      Bewusst als eigener Graph statt als zweite Achse neben der Kassequote.
+      Zwei Groessenordnungen auf einer Achse sind die haeufigste Ursache
+      falsch gelesener Zusammenhaenge.
+    quelle: SEC EDGAR XBRL, CIK 0001067983
+    frequenz: quartalsweise
+    reihen:
+      - key: brk_cash_abs
+        name: Cash und kurzfristige Anlagen
+        adapter: sec_edgar
+        args: {cik: "0001067983", konzept: cash_und_kurzfrist, skala: 1e9}
+
+  - id: marktbreite
+    gruppe: psychologie
+    titel: Marktbreite - gleichgewichtet gegen kapitalgewichtet
+    einheit: Verhaeltnis, indexiert auf 100
+    aussagekraft: >-
+      Neue Indexhochs, die von der Breite des Marktes nicht bestaetigt werden,
+      zeigen eine von wenigen Schwergewichten getragene Rally - solche Divergenzen
+      gingen den Wendepunkten 1999 und 2007 um Monate voraus.
+    schwaeche: >-
+      Ersatzkonstruktion. Die Advance-Decline-Linie der NYSE braucht
+      Breadth-Rohdaten, fuer die es keine freie Quelle gibt. Gezeigt wird das
+      Verhaeltnis des gleichgewichteten zum kapitalgewichteten S&P 500 - die
+      Naeherung, die auch das Zyklus-Cockpit nennt. Sie misst dasselbe Phaenomen,
+      aber nur innerhalb des S&P 500 statt ueber die gesamte NYSE.
+    quelle: Yahoo (RSP und SPY)
+    reihen:
+      - key: rsp_spy
+        name: RSP / SPY
+        adapter: berechnet
+        args: {formel: quotient_indexiert, zaehler: rsp, nenner: spy}
+
+  - id: volatilitaet
+    gruppe: psychologie
+    titel: Volatilitaetsindizes VIX und VSTOXX
+    einheit: Indexpunkte
+    aussagekraft: >-
+      Die aus Indexoptionen abgeleitete erwartete Schwankung der naechsten
+      dreissig Tage - grob gilt: unter 13 Selbstzufriedenheit, ueber 30 Panik.
+    schwaeche: >-
+      Ein niedriger VIX ist kein Verkaufssignal - er kann monatelang niedrig
+      bleiben. Aussagekraeftiger als das Niveau ist die Terminstruktur.
+    schwellen: [{wert: 13, label: "Selbstzufriedenheit"}, {wert: 30, label: "Panik"}]
+    quelle: FRED (VIXCLS) und STOXX (h_vstoxx.txt)
+    reihen:
+      - key: vix
+        name: VIX (S&P 500)
+        adapter: fred
+        args: {series_id: VIXCLS}
+      - key: vstoxx
+        name: VSTOXX (EURO STOXX 50)
+        adapter: stoxx
+        args: {spalte: V2TX}
+
+  - id: putcall
+    gruppe: psychologie
+    titel: Put/Call-Ratio
+    einheit: Verhaeltnis Put- zu Call-Volumen
+    aussagekraft: >-
+      Wie viel am Optionsmarkt fuer Absicherung bezahlt wird - ein Wert ueber
+      etwa 1,0 zeigt Angst und ist als Gegenindikator eher bullisch, unter etwa
+      0,5 Sorglosigkeit.
+    schwaeche: >-
+      Der Boom bei Nulltages-Optionen hat die Volumenverhaeltnisse strukturell
+      veraendert; alte Schwellen sind mit Vorsicht zu lesen.
+    schwellen: [{wert: 0.5, label: "sorglos"}, {wert: 1.0, label: "Angst"}]
+    quelle: Cboe - frei zugaengliche Historie endet 2019
+    reihen:
+      - key: putcall_equity
+        name: Cboe Equity Put/Call
+        verfuegbar: false
+        grund: >-
+          Die frei zugaengliche Cboe-Datei wird abgerufen und ausgewertet, sie
+          endet aber am 4. Oktober 2019 und wird nicht mehr fortgeschrieben.
+          Cboe hat die laufenden Volumendaten hinter eine kostenpflichtige
+          Schnittstelle gelegt; der Abruf der aktuellen Datei antwortet mit
+          HTTP 403. Eine sechs Jahre alte Reihe als Stimmungsindikator zu
+          zeigen waere schlechter als sie wegzulassen. Der VIX im Graphen
+          darueber misst dasselbe Phaenomen und ist frei verfuegbar.
+
+  - id: margin_debt
+    gruppe: psychologie
+    titel: Margin Debt USA
+    einheit: "% gegenueber Vorjahr"
+    aussagekraft: >-
+      Die Summe der Kredite, die Anleger bei ihren Brokern zum Wertpapierkauf
+      aufgenommen haben - das direkteste verfuegbare Mass fuer den Hebel im
+      System, und Hebel entscheidet darueber, wie ungeordnet ein Rueckgang
+      verlaeuft.
+    schwaeche: >-
+      Erscheint mit rund einem Monat Verzoegerung und erfasst nur Broker-Kredite
+      von US-Privatanlegern. Der absolute Stand steigt mit dem Markt und sagt
+      wenig - deshalb ist hier die Jahresrate abgebildet.
+    schwellen: [{wert: 50, label: "Euphorie"}, {wert: -20, label: "Zwangsverkaeufe"}]
+    nulllinie: true
+    quelle: FINRA Margin Statistics (margin-statistics.xlsx)
+    reihen:
+      - key: margin_debt_yoy
+        name: Margin Debt, Jahresrate
+        adapter: berechnet
+        args: {formel: jahresrate, basis: margin_debt_abs}
+
+  # ------------------------------------------------------------------ #
+  # Realwirtschaft                                                     #
+  # ------------------------------------------------------------------ #
+
+  - id: bip
+    gruppe: realwirtschaft
+    titel: Bruttoinlandsprodukt
+    einheit: "% annualisiert gegenueber Vorquartal"
+    aussagekraft: >-
+      Zwei aufeinanderfolgende negative Quartale gelten als technische Rezession;
+      interessanter als die Rate ist aber die Zusammensetzung - traegt der Konsum,
+      oder nur Lageraufbau und Staatsausgaben?
+    schwaeche: >-
+      Erscheint mit Wochen Verzoegerung und wird jahrelang revidiert. Die USA
+      annualisieren die Quartalsrate von Haus aus, Euroraum und China nicht -
+      hier sind alle drei Reihen auf die annualisierte Rate umgerechnet und
+      dadurch vergleichbar.
+    nulllinie: true
+    frequenz: quartalsweise
+    quelle: FRED (A191RL1Q225SBEA), Eurostat und OECD ueber FRED
+    reihen:
+      - key: bip_us
+        name: USA
+        adapter: fred
+        args: {series_id: A191RL1Q225SBEA}
+      - key: bip_ea
+        name: Euroraum
+        adapter: berechnet
+        args: {formel: qoq_annualisiert, basis: bip_ea_niveau}
+      - key: bip_cn
+        name: China
+        verfuegbar: false
+        grund: >-
+          Die FRED-Reihe zum chinesischen BIP endet im Juli 2023 und wird nicht
+          mehr fortgeschrieben. Eine Suche ueber die FRED-Bestaende lieferte
+          keine einzige aktuelle Quartalsreihe zum chinesischen BIP; das
+          Nationale Statistikamt Chinas bietet keine offene Schnittstelle, und
+          die OECD fuehrt China nicht in den frei abrufbaren
+          Quartalsrechnungen. Der chinesische Kreditimpuls weiter oben bleibt
+          damit der einzige China-Indikator im Briefing - er stammt aus
+          BIS-Daten und ist verfuegbar.
+
+  - id: stimmung
+    gruppe: realwirtschaft
+    titel: Fruehindikatoren der Industrie
+    einheit: Standardabweichungen vom eigenen Mittel
+    aussagekraft: >-
+      Umfragen unter Unternehmen, ausgewertet als Diffusionsindex - die
+      schnellste breite Konjunkturmeldung ueberhaupt und der zuverlaessigste
+      Hinweis darauf, wohin die Industrie in den kommenden Monaten laeuft.
+    schwaeche: >-
+      Ersatzkonstruktion, doppelt. Erstens sind ISM und die S&P-Global-PMIs
+      lizenzpflichtig; gezeigt werden stattdessen der Philadelphia-Fed-Index fuer
+      die USA und der ESI der EU-Kommission fuer den Euroraum. Zweitens haben
+      beide voellig verschiedene Skalen - deshalb sind sie hier auf
+      Standardabweichungen vom eigenen historischen Mittel normiert und dadurch
+      vergleichbar. Die vertraute 50er-Marke des PMI gibt es hier folglich nicht;
+      die Nulllinie ist das jeweilige Langfristmittel.
+    nulllinie: true
+    quelle: FRED (GACDFSA066MSFRBPHI) und EU-Kommission ESI ueber die EZB
+    reihen:
+      - key: philly_fed_z
+        name: Philadelphia Fed, Industrie (USA)
+        adapter: berechnet
+        args: {formel: zscore, basis: philly_fed_roh}
+      - key: esi_ea_z
+        name: ESI Wirtschaftsklima (Euroraum)
+        adapter: berechnet
+        args: {formel: zscore, basis: esi_ea_roh}
+
+  - id: einzelhandel
+    gruppe: realwirtschaft
+    titel: Einzelhandelsumsaetze
+    einheit: "% gegenueber Vorjahr"
+    aussagekraft: >-
+      Der private Konsum traegt rund zwei Drittel der US-Wirtschaftsleistung und
+      gut die Haelfte im Euroraum - die Einzelhandelsumsaetze messen, was
+      tatsaechlich ausgegeben wurde, nicht was Haushalte in Umfragen angeben.
+    schwaeche: >-
+      Nominale Umsaetze muessen um Inflation bereinigt werden, sonst zaehlt man
+      Preise als Wachstum.
+    nulllinie: true
+    quelle: FRED (RSAFS) und Eurostat ueber die EZB
+    reihen:
+      - key: retail_us_yoy
+        name: USA
+        adapter: berechnet
+        args: {formel: jahresrate, basis: retail_us}
+      - key: retail_ea_yoy
+        name: Euroraum
+        adapter: berechnet
+        args: {formel: jahresrate, basis: retail_ea}
+
+  - id: industrieproduktion
+    gruppe: realwirtschaft
+    titel: Industrieproduktion
+    einheit: "% gegenueber Vorjahr"
+    aussagekraft: >-
+      Die harte Mengengroesse der Industrie - langsamer als jede Umfrage, aber
+      nicht durch Stimmung verzerrt und die Basis, an der sich Fruehindikatoren
+      im Nachhinein messen lassen muessen.
+    nulllinie: true
+    quelle: FRED (INDPRO) und EZB Data Portal (STS Industrieproduktion Euroraum)
+    reihen:
+      - key: indpro_us_yoy
+        name: USA
+        adapter: berechnet
+        args: {formel: jahresrate, basis: indpro_us}
+      - key: indpro_ea_yoy
+        name: Euroraum
+        adapter: berechnet
+        args: {formel: jahresrate, basis: indpro_ea}
+
+  - id: kerninflation
+    gruppe: realwirtschaft
+    titel: Kerninflation
+    einheit: "% gegenueber Vorjahr"
+    aussagekraft: >-
+      Inflation ohne Energie und Nahrungsmittel ist die fuer Notenbanken
+      relevante Groesse - und fuer den Aktienmarkt kein Nebenschauplatz, sondern
+      der Zinssatz, mit dem alle kuenftigen Gewinne abgezinst werden.
+    schwaeche: >-
+      Basiseffekte machen Jahresraten irrefuehrend; die annualisierte Drei- oder
+      Sechsmonatsrate zeigt Wendepunkte frueher. Der Wohnkostenanteil im US-CPI
+      laeuft den realen Mieten rund ein Jahr hinterher.
+    schwellen: [{wert: 2, label: "Zielmarke"}]
+    quelle: FRED (CPILFESL) und Eurostat HVPI-Kernrate
+    reihen:
+      - key: kern_cpi_us
+        name: USA (Kern-CPI)
+        adapter: berechnet
+        args: {formel: jahresrate, basis: cpi_kern_us}
+      - key: kern_hvpi_ea
+        name: Euroraum (Kern-HVPI)
+        adapter: berechnet
+        args: {formel: jahresrate, basis: hvpi_kern_ea}
+
+  # ------------------------------------------------------------------ #
+  # Rohstoffe und Waehrung - sieben getrennte Charts                   #
+  # ------------------------------------------------------------------ #
+
+  - id: dxy
+    gruppe: rohstoffe
+    titel: Dollar-Index (DXY)
+    einheit: Indexpunkte
+    aussagekraft: >-
+      Ein starker Dollar verteuert die weltweite Dollarverschuldung, drueckt
+      Rohstoffpreise und die Gewinne von US-Exporteuren - er ist der wichtigste
+      einzelne Uebertragungskanal amerikanischer Geldpolitik in den Rest der Welt.
+    quelle: ICE Dollar-Index ueber Yahoo (DX-Y.NYB)
+    reihen:
+      - key: dxy
+        name: Dollar-Index
+        adapter: yahoo
+        args: {symbol: DX-Y.NYB}
+
+  - id: kupfer_gold
+    gruppe: rohstoffe
+    titel: Kupfer/Gold-Verhaeltnis
+    einheit: Verhaeltnis
+    aussagekraft: >-
+      Setzt das zyklische Industriemetall gegen den defensiven Wertspeicher und
+      laeuft historisch mit Anleiherenditen und Konjunkturzyklus im Gleichschritt -
+      ein fallendes Verhaeltnis bei steigenden Aktienkursen ist eine Divergenz,
+      die man ernst nehmen sollte.
+    quelle: Berechnet aus Kupfer (Yahoo HG=F) geteilt durch Gold (LBMA)
+    reihen:
+      - key: kupfer_gold
+        name: Kupfer / Gold
+        adapter: berechnet
+        args: {formel: quotient, zaehler: kupfer, nenner: gold}
+
+  - id: gold
+    gruppe: rohstoffe
+    titel: Goldpreis
+    einheit: USD je Feinunze
+    aussagekraft: >-
+      Gold traegt keinen Zins und wird deshalb vor allem dann teurer, wenn die
+      Realzinsen fallen oder das Vertrauen in Waehrungen und Staatsfinanzen
+      nachlaesst - es ist ein Misstrauensindikator, kein Konjunkturindikator.
+    quelle: LBMA Gold Price PM, taeglicher Auktionspreis seit 1968
+    reihen:
+      - key: gold
+        name: Gold
+        adapter: lbma
+        args: {metall: gold, waehrung: USD}
+
+  - id: silber
+    gruppe: rohstoffe
+    titel: Silberpreis
+    einheit: USD je Feinunze
+    aussagekraft: >-
+      Silber ist zugleich Edelmetall und Industriemetall - es folgt Gold in
+      Krisen, haengt aber staerker an Elektronik-, Solar- und Industrienachfrage
+      und schwankt deshalb deutlich staerker.
+    quelle: LBMA Silver Price, taeglicher Auktionspreis seit 1968
+    reihen:
+      - key: silber
+        name: Silber
+        adapter: lbma
+        args: {metall: silber, waehrung: USD}
+
+  - id: kupfer
+    gruppe: rohstoffe
+    titel: Kupferpreis
+    einheit: USD je Pfund
+    aussagekraft: >-
+      Kupfer heisst nicht zufaellig Dr. Copper - es steckt in Bau, Stromnetz,
+      Fahrzeug und Rechenzentrum und reagiert auf Nachfrageaenderungen, bevor sie
+      in der Statistik auftauchen.
+    schwaeche: >-
+      Chinas Bau- und Lagerpolitik dominiert die Kupfernachfrage und kann das
+      Konjunktursignal jahrelang verzerren.
+    quelle: COMEX-Terminkurs ueber Yahoo (HG=F)
+    reihen:
+      - key: kupfer
+        name: Kupfer
+        adapter: yahoo
+        args: {symbol: HG=F}
+
+  - id: weizen
+    gruppe: rohstoffe
+    titel: Weizenpreis
+    einheit: US-Cent je Bushel
+    aussagekraft: >-
+      Nahrungsmittelpreise schlagen in Schwellenlaendern direkt auf die
+      Verbraucherpreise und historisch auch auf die politische Stabilitaet durch -
+      im Euroraum und den USA wirken sie ueber die Gesamtinflation auf die
+      Realeinkommen.
+    schwaeche: >-
+      Wetter und Krieg dominieren das Angebot. Preisspruenge sind meist
+      Angebotsschocks und sagen ueber die Nachfrageseite der Konjunktur wenig aus.
+    quelle: CBOT-Terminkurs ueber Yahoo (ZW=F)
+    reihen:
+      - key: weizen
+        name: Weizen
+        adapter: yahoo
+        args: {symbol: ZW=F}
+
+  - id: brent
+    gruppe: rohstoffe
+    titel: Oelpreis Brent
+    einheit: USD je Barrel
+    aussagekraft: >-
+      Nahezu jede US-Rezession seit 1970 folgte auf einen scharfen
+      Oelpreisanstieg - Energie ist der einzige Rohstoff, der breit genug in die
+      Kostenstruktur einfliesst, um allein eine Konjunktur zu kippen.
+    schwaeche: >-
+      Angebotsschocks durch OPEC-Entscheidungen oder Krieg sehen in der Zeitreihe
+      genauso aus wie Nachfragesignale, bedeuten aber das Gegenteil.
+    quelle: FRED (DCOILBRENTEU)
+    reihen:
+      - key: brent
+        name: Brent
+        adapter: fred
+        args: {series_id: DCOILBRENTEU}
+
+  # ------------------------------------------------------------------ #
+  # Zusammenfassend                                                    #
+  # ------------------------------------------------------------------ #
+
+  - id: lei
+    gruppe: zusammenfassend
+    titel: Fruehindikator-Gesamtindex
+    einheit: Index, 100 = langfristiger Trend
+    aussagekraft: >-
+      Buendelt mehrere Fruehindikatoren - Auftragseingaenge, Arbeitszeit,
+      Zinskurve, Kreditbedingungen, Aktienkurse - zu einer einzigen Kurve, deren
+      Wendepunkte denen der Gesamtwirtschaft typischerweise um mehrere Monate
+      vorauslaufen.
+    schwaeche: >-
+      Ersatzkonstruktion. Der Conference Board LEI ist proprietaer; frei ist nur
+      die monatliche Pressemitteilung. Gezeigt wird der Composite Leading
+      Indicator der OECD, der nach derselben Logik gebaut ist. Und die Warnung
+      gilt fuer beide: 2022 lieferten diese Indizes einen prominenten Fehlalarm.
+    schwellen: [{wert: 100, label: "Trend"}]
+    quelle: OECD Composite Leading Indicators (SDMX, direkt bei der OECD)
+    reihen:
+      - key: cli_us
+        name: USA
+        adapter: oecd
+        args:
+          dataflow: "OECD.SDD.STES,DSD_STES@DF_CLI,"
+          pfad: USA.M.LI...AA...H
+      - key: cli_ea
+        name: Euroraum
+        verfuegbar: false
+        grund: >-
+          Die FRED-Spiegel der OECD-Fruehindikatoren werden nicht mehr
+          fortgeschrieben - die Euroraum-Reihe endet im November 2022, ohne dass
+          der Abruf fehlschlaegt. Bei der OECD selbst existiert fuer den
+          Euroraum als Aggregat kein CLI unter demselben Gebietscode wie fuer
+          die USA. Eine Suche in den FRED-Bestaenden ergab keinen einzigen
+          aktuellen zusammengesetzten Fruehindikator fuer den Euroraum. Die
+          Einzelbausteine eines solchen Index stehen im Briefing ohnehin:
+          Zinskurve, Kreditvergabestandards, Kreditaufschlaege und das
+          Kupfer/Gold-Verhaeltnis.

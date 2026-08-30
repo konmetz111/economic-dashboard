@@ -1,0 +1,406 @@
+/* Gestaltung des Wochenbriefings.
+ *
+ * Farben stammen aus der validierten Referenzpalette der dataviz-Vorgaben und
+ * sind unveraendert uebernommen - inklusive der Slot-Reihenfolge, die dort die
+ * eigentliche Sicherungsmassnahme gegen Farbfehlsichtigkeit ist. Wer sie
+ * umsortiert, muss den Validator erneut laufen lassen.
+ *
+ * Innerhalb der Graphen wird ausschliesslich die System-Serifenlose verwendet;
+ * die Serife bleibt den Ueberschriften der Seite vorbehalten.
+ */
+
+:root {
+  color-scheme: light;
+
+  --flaeche:        #fcfcfb;   /* Chartflaeche */
+  --ebene:          #f9f9f7;   /* Seitenhintergrund */
+  --ebene-2:        #f2f2ef;
+  --ink:            #0b0b0b;
+  --ink-2:          #52514e;
+  --ink-gedaempft:  #898781;
+  --raster:         #e1e0d9;
+  --achse:          #c3c2b7;
+  --rahmen:         rgba(11, 11, 11, .10);
+
+  --serie-1: #2a78d6;
+  --serie-2: #eb6834;
+  --serie-3: #1baf7a;
+  --serie-4: #eda100;
+  --serie-5: #e87ba4;
+  --serie-6: #008300;
+  --serie-7: #4a3aa7;
+  --serie-8: #e34948;
+
+  --gut:      #0ca30c;
+  --warnung:  #fab219;
+  --ernst:    #ec835a;
+  --kritisch: #d03b3b;
+  --gut-text: #006300;
+
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  --spalte: 68rem;
+  --radius: 6px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --flaeche: #1a1a19;
+    --ebene: #0d0d0d;
+    --ebene-2: #232322;
+    --ink: #ffffff;
+    --ink-2: #c3c2b7;
+    --ink-gedaempft: #898781;
+    --raster: #2c2c2a;
+    --achse: #383835;
+    --rahmen: rgba(255, 255, 255, .10);
+
+    --serie-1: #3987e5;
+    --serie-2: #d95926;
+    --serie-3: #199e70;
+    --serie-4: #c98500;
+    --serie-5: #d55181;
+    --serie-6: #008300;
+    --serie-7: #9085e9;
+    --serie-8: #e66767;
+    --gut-text: #0ca30c;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --flaeche: #1a1a19;
+  --ebene: #0d0d0d;
+  --ebene-2: #232322;
+  --ink: #ffffff;
+  --ink-2: #c3c2b7;
+  --ink-gedaempft: #898781;
+  --raster: #2c2c2a;
+  --achse: #383835;
+  --rahmen: rgba(255, 255, 255, .10);
+
+  --serie-1: #3987e5;
+  --serie-2: #d95926;
+  --serie-3: #199e70;
+  --serie-4: #c98500;
+  --serie-5: #d55181;
+  --serie-6: #008300;
+  --serie-7: #9085e9;
+  --serie-8: #e66767;
+  --gut-text: #0ca30c;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; animation: none !important; }
+}
+
+body {
+  margin: 0;
+  background: var(--ebene);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16.5px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.bahn { max-width: var(--spalte); margin-inline: auto; padding-inline: clamp(1rem, 4vw, 2rem); }
+
+.nur-vorlesen {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
+
+.sprunglink {
+  position: absolute; left: -999px; top: 0; z-index: 100;
+  background: var(--flaeche); color: var(--ink); padding: .6rem 1rem;
+}
+.sprunglink:focus { left: .5rem; top: .5rem; }
+
+:focus-visible { outline: 2px solid var(--serie-1); outline-offset: 2px; border-radius: 3px; }
+
+a { color: var(--serie-1); }
+
+/* ---------------------------------------------------------------- Kopf -- */
+
+.kopf { background: var(--flaeche); border-bottom: 1px solid var(--rahmen); }
+
+.kopf-innen { padding-block: clamp(2rem, 6vw, 3.5rem) clamp(1.5rem, 4vw, 2rem); }
+
+.augenbraue {
+  margin: 0 0 .75rem; font-family: var(--mono); font-size: .72rem;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--serie-1);
+}
+
+h1 {
+  font-family: var(--serif); font-weight: 600;
+  font-size: clamp(1.9rem, 5vw, 2.9rem); line-height: 1.1;
+  margin: 0 0 .6rem; letter-spacing: -.015em; text-wrap: balance;
+}
+
+.vorspann { margin: 0; color: var(--ink-2); max-width: 52ch; font-size: 1.05rem; }
+
+.kopf-meta {
+  display: flex; flex-wrap: wrap; gap: .35rem 2rem; margin: 1.5rem 0 0;
+  padding-top: 1rem; border-top: 1px solid var(--rahmen);
+}
+.kopf-meta div { display: flex; gap: .5rem; align-items: baseline; }
+.kopf-meta dt {
+  font-family: var(--mono); font-size: .68rem; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink-gedaempft);
+}
+.kopf-meta dd { margin: 0; font-size: .85rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+/* ------------------------------------------------------------- Leiste -- */
+
+.leiste {
+  position: sticky; top: 0; z-index: 30;
+  background: color-mix(in srgb, var(--ebene) 92%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--rahmen);
+}
+
+.leiste-innen {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1.5rem;
+  padding-block: .6rem;
+}
+
+.leiste-gruppe { display: flex; align-items: center; gap: .5rem; }
+.leiste-rechts { margin-left: auto; }
+
+.leiste-titel {
+  font-family: var(--mono); font-size: .66rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--ink-gedaempft);
+}
+
+.chips { display: flex; flex-wrap: wrap; gap: .3rem; }
+
+.chip, .knopf {
+  font: inherit; font-size: .78rem;
+  font-family: var(--mono); letter-spacing: .02em;
+  color: var(--ink-2); background: var(--flaeche);
+  border: 1px solid var(--achse); border-radius: 999px;
+  padding: .25rem .7rem; cursor: pointer;
+  transition: background .12s, color .12s, border-color .12s;
+}
+.chip:hover, .knopf:hover { border-color: var(--serie-1); color: var(--serie-1); }
+.chip[aria-pressed="true"] {
+  background: var(--serie-1); border-color: var(--serie-1); color: #fff;
+}
+
+.suche input {
+  font: inherit; font-size: .85rem;
+  padding: .3rem .7rem; border-radius: 999px;
+  border: 1px solid var(--achse); background: var(--flaeche); color: var(--ink);
+  min-width: 12rem;
+}
+
+.sprungnav {
+  display: flex; gap: .1rem 1.1rem; flex-wrap: wrap;
+  padding-bottom: .55rem; font-size: .8rem;
+}
+.sprungnav a {
+  color: var(--ink-gedaempft); text-decoration: none;
+  border-bottom: 2px solid transparent; padding-bottom: .1rem;
+}
+.sprungnav a:hover { color: var(--ink); }
+.sprungnav a[aria-current="true"] { color: var(--ink); border-bottom-color: var(--serie-1); }
+
+/* -------------------------------------------------------------- Lage -- */
+
+.lage {
+  margin-top: 2.5rem; padding: 1.5rem clamp(1.1rem, 3vw, 1.75rem);
+  background: var(--flaeche); border: 1px solid var(--rahmen);
+  border-left: 3px solid var(--serie-1); border-radius: var(--radius);
+}
+.lage h2 { font-family: var(--serif); font-size: 1.3rem; margin: 0 0 .8rem; }
+.lage-text p { margin: 0 0 .8rem; color: var(--ink-2); }
+.lage-text p:last-child { margin-bottom: 0; }
+.lage-fuss {
+  margin: 1rem 0 0; padding-top: .8rem; border-top: 1px solid var(--rahmen);
+  font-family: var(--mono); font-size: .7rem; color: var(--ink-gedaempft);
+}
+
+/* ------------------------------------------------------------ Warnung -- */
+
+.warnung-kasten {
+  margin-top: 1.5rem; padding: .9rem 1.1rem; border-radius: var(--radius);
+  background: var(--flaeche); border: 1px solid var(--ernst);
+  border-left: 3px solid var(--ernst); font-size: .9rem;
+}
+.warnung-kasten h2 { font-size: .95rem; margin: 0 0 .4rem; font-family: var(--sans); }
+.warnung-kasten ul { margin: .4rem 0 0; padding-left: 1.2rem; color: var(--ink-2); }
+.warnung-kasten li { margin-bottom: .2rem; }
+
+/* ------------------------------------------------------------ Gruppen -- */
+
+.gruppe { padding-top: clamp(2.5rem, 6vw, 4rem); scroll-margin-top: 5.5rem; }
+
+.gruppe-kopf { border-bottom: 2px solid var(--ink); padding-bottom: 1rem; margin-bottom: 1.5rem; }
+.gruppe-kopf h2 {
+  font-family: var(--serif); font-size: clamp(1.4rem, 3.4vw, 1.85rem);
+  margin: 0 0 .3rem; letter-spacing: -.01em;
+}
+.gruppe-kopf p { margin: 0; color: var(--ink-2); font-size: .95rem; max-width: 62ch; }
+
+.karten { display: grid; gap: 1.4rem; }
+
+/* ------------------------------------------------------------- Karte -- */
+
+.karte {
+  background: var(--flaeche); border: 1px solid var(--rahmen);
+  border-radius: var(--radius); padding: 1.25rem clamp(1rem, 3vw, 1.6rem) 1.1rem;
+  scroll-margin-top: 5.5rem;
+}
+.karte[hidden] { display: none; }
+
+.karte-kopf { display: flex; flex-wrap: wrap; gap: .6rem 1rem; align-items: flex-start; }
+.karte-titel { flex: 1 1 18rem; min-width: 0; }
+.karte-titel h3 {
+  font-family: var(--serif); font-size: 1.15rem; font-weight: 600;
+  margin: 0; line-height: 1.3;
+}
+.karte-titel h3 a { color: inherit; text-decoration: none; }
+.karte-titel h3 a:hover::after { content: " #"; color: var(--ink-gedaempft); }
+.karte-einheit {
+  font-family: var(--mono); font-size: .68rem; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--ink-gedaempft); margin: .2rem 0 0;
+}
+
+.stand { text-align: right; font-variant-numeric: tabular-nums; }
+.stand-wert { font-size: 1.35rem; font-weight: 600; line-height: 1.1; display: block; }
+.stand-delta { font-size: .78rem; font-family: var(--mono); color: var(--ink-gedaempft); }
+.stand-delta.hoch { color: var(--gut-text); }
+.stand-delta.runter { color: var(--kritisch); }
+
+.aussagekraft { margin: .9rem 0 0; color: var(--ink-2); font-size: .95rem; max-width: 68ch; }
+
+.chart-werkzeuge {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .4rem;
+  margin-top: 1rem;
+}
+.chart-werkzeuge .chip { font-size: .72rem; padding: .2rem .55rem; }
+.werkzeug-rechts { margin-left: auto; display: flex; gap: .4rem; }
+
+.buehne { position: relative; margin-top: .6rem; }
+canvas { display: block; width: 100%; height: 300px; touch-action: pan-y; cursor: crosshair; }
+@media (max-width: 620px) { canvas { height: 240px; } }
+
+.legende {
+  display: flex; flex-wrap: wrap; gap: .3rem .9rem; margin-top: .7rem;
+  font-size: .8rem;
+}
+.legende button {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: none; border: 0; padding: .1rem 0; cursor: pointer;
+  color: var(--ink-2); font: inherit;
+}
+.legende button[aria-pressed="false"] { color: var(--ink-gedaempft); text-decoration: line-through; }
+.legende .punkt { width: 11px; height: 11px; border-radius: 3px; flex: none; }
+.legende button[aria-pressed="false"] .punkt { opacity: .3; }
+
+.tabelle-huelle { max-height: 20rem; overflow: auto; margin-top: .8rem; border: 1px solid var(--rahmen); border-radius: 4px; }
+.tabelle-huelle table { border-collapse: collapse; width: 100%; font-size: .8rem; }
+.tabelle-huelle th, .tabelle-huelle td {
+  padding: .3rem .6rem; text-align: right; border-bottom: 1px solid var(--rahmen);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.tabelle-huelle th:first-child, .tabelle-huelle td:first-child { text-align: left; }
+.tabelle-huelle thead th {
+  position: sticky; top: 0; background: var(--ebene-2); color: var(--ink-2);
+  font-family: var(--mono); font-size: .68rem; letter-spacing: .06em; text-transform: uppercase;
+}
+
+.kommentar {
+  margin-top: 1.1rem; padding-top: 1rem; border-top: 1px solid var(--rahmen);
+}
+.kommentar h4 {
+  font-family: var(--mono); font-size: .66rem; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--serie-1); margin: 0 0 .5rem;
+}
+.kommentar p { margin: 0 0 .7rem; color: var(--ink-2); font-size: .95rem; }
+.kommentar p:last-child { margin-bottom: 0; }
+
+.schwaeche {
+  margin-top: .9rem; font-size: .88rem; color: var(--ink-gedaempft);
+  border-left: 2px solid var(--achse); padding-left: .8rem;
+}
+.schwaeche b {
+  font-family: var(--mono); font-size: .64rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--ernst); margin-right: .4rem;
+}
+
+.quelle {
+  margin: .9rem 0 0; padding-top: .7rem; border-top: 1px dotted var(--achse);
+  font-family: var(--mono); font-size: .69rem; color: var(--ink-gedaempft);
+  display: flex; flex-wrap: wrap; gap: .2rem 1rem;
+}
+
+.marke {
+  display: inline-flex; align-items: center; gap: .3rem;
+  font-family: var(--mono); font-size: .64rem; letter-spacing: .08em;
+  text-transform: uppercase; padding: .1rem .4rem; border-radius: 3px;
+  border: 1px solid currentColor;
+}
+.marke.veraltet { color: var(--ernst); }
+.marke.fehler { color: var(--kritisch); }
+.marke.aufbau { color: var(--ink-gedaempft); }
+.marke.fehlt { color: var(--ink-gedaempft); }
+
+.reihenhinweis { margin: .6rem 0 0; font-size: .85rem; color: var(--ink-gedaempft); }
+
+/* -------------------------------------------------------------- Tipp -- */
+
+.tipp {
+  position: fixed; z-index: 60; pointer-events: none;
+  background: var(--flaeche); color: var(--ink);
+  border: 1px solid var(--achse); border-radius: 5px;
+  padding: .5rem .65rem; font-size: .8rem; line-height: 1.45;
+  box-shadow: 0 6px 24px -12px rgba(0, 0, 0, .5);
+  min-width: 9rem; font-variant-numeric: tabular-nums;
+}
+.tipp[hidden] { display: none; }
+.tipp-datum {
+  font-family: var(--mono); font-size: .68rem; letter-spacing: .04em;
+  color: var(--ink-gedaempft); margin-bottom: .35rem;
+  padding-bottom: .3rem; border-bottom: 1px solid var(--rahmen);
+}
+.tipp-zeile { display: flex; align-items: center; gap: .45rem; }
+.tipp-zeile .punkt { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+.tipp-zeile .name { color: var(--ink-2); margin-right: auto; }
+.tipp-zeile .wert { font-weight: 600; }
+
+/* ------------------------------------------------------------ Schluss -- */
+
+.ladehinweis, .leertreffer { padding: 3rem 0; color: var(--ink-gedaempft); font-family: var(--mono); font-size: .85rem; }
+
+.lesart { padding-top: clamp(2.5rem, 6vw, 4rem); }
+.lesart h2 { font-family: var(--serif); font-size: 1.5rem; margin: 0 0 1.2rem; }
+.regeln { margin: 0; padding-left: 1.3rem; display: grid; gap: .7rem; }
+.regeln li { color: var(--ink-2); font-size: .95rem; }
+.regeln b { color: var(--ink); }
+
+.haftung {
+  margin-top: 2rem; padding: 1rem 1.2rem; border: 1px solid var(--achse);
+  border-radius: var(--radius); background: var(--ebene-2);
+  font-size: .87rem; color: var(--ink-gedaempft);
+}
+
+.fuss {
+  padding: 2.5rem 0 3.5rem; margin-top: 2rem;
+  font-family: var(--mono); font-size: .72rem; color: var(--ink-gedaempft);
+}
+.fuss p { margin: .2rem 0; }
+
+@media print {
+  .leiste, .chart-werkzeuge, .sprunglink { display: none; }
+  .karte { break-inside: avoid; border-color: #999; }
+  body { background: #fff; }
+}

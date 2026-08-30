@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="de" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Volkswirtschaftliches Wochenbriefing</title>
+<meta name="description" content="Woechentlich aktualisierte Zeitreihen zu Geldpolitik, Liquiditaet, Bewertung und Konjunktur in USA, Euroraum und Japan.">
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>%F0%9F%93%88</text></svg>">
+</head>
+<body>
+
+<a class="sprunglink" href="#inhalt">Zum Inhalt springen</a>
+
+<header class="kopf">
+  <div class="bahn kopf-innen">
+    <p class="augenbraue">Wochenbriefing &middot; USA &middot; Euroraum &middot; Japan</p>
+    <h1 id="seitentitel">Volkswirtschaftliches Wochenbriefing</h1>
+    <p class="vorspann" id="seitenuntertitel"></p>
+    <dl class="kopf-meta">
+      <div><dt>Datenstand</dt><dd id="meta-datenstand">wird geladen</dd></div>
+      <div><dt>Kommentare</dt><dd id="meta-modell">wird geladen</dd></div>
+      <div><dt>Reihen</dt><dd id="meta-umfang">wird geladen</dd></div>
+    </dl>
+  </div>
+</header>
+
+<div class="leiste" role="region" aria-label="Steuerung">
+  <div class="bahn leiste-innen">
+    <div class="leiste-gruppe" role="group" aria-labelledby="fenster-titel">
+      <span class="leiste-titel" id="fenster-titel">Zeitraum</span>
+      <div class="chips" id="globale-fenster"></div>
+    </div>
+    <div class="leiste-gruppe leiste-rechts">
+      <label class="suche">
+        <span class="nur-vorlesen">Indikator suchen</span>
+        <input type="search" id="suchfeld" placeholder="Indikator suchen" autocomplete="off">
+      </label>
+      <button class="knopf" id="thema-schalter" type="button" aria-live="polite">
+        <span id="thema-text">Dunkel</span>
+      </button>
+    </div>
+  </div>
+  <nav class="sprungnav bahn" id="sprungnav" aria-label="Abschnitte"></nav>
+</div>
+
+<main class="bahn" id="inhalt">
+
+  <section class="lage" id="lage" hidden>
+    <h2>Lage auf einen Blick</h2>
+    <div class="lage-text" id="lage-text"></div>
+    <p class="lage-fuss" id="lage-fuss"></p>
+  </section>
+
+  <div id="warnbereich"></div>
+
+  <div id="gruppen" aria-live="polite">
+    <p class="ladehinweis" id="ladehinweis">Daten werden geladen&hellip;</p>
+  </div>
+
+  <p class="leertreffer" id="leertreffer" hidden>Kein Indikator passt zu dieser Suche.</p>
+
+  <section class="lesart">
+    <h2>Wie dieses Briefing zu lesen ist</h2>
+    <ol class="regeln">
+      <li><b>Die Wirkungskette respektieren.</b> Liquiditaet und Kreditbedingungen
+        zuerst, dann Fruehindikatoren, dann Gewinne, dann harte Konjunkturdaten.
+        Wer den Arbeitsmarkt als Warnsignal nutzt, ist per Konstruktion zu spaet.</li>
+      <li><b>Bewertung ist ein Renditeanker, kein Timing-Signal.</b> CAPE und
+        Buffett-Indikator sagen etwas ueber die kommende Dekade und praktisch
+        nichts ueber die kommenden zwoelf Monate.</li>
+      <li><b>Auf Konfluenz warten.</b> Kein einzelner Indikator hat eine
+        Trefferquote, die eine Entscheidung rechtfertigt. Aussagekraeftig ist,
+        wenn mehrere unabhaengige Gruppen gleichzeitig in dieselbe Richtung zeigen.</li>
+      <li><b>Veraenderungsrate schlaegt Niveau.</b> Ein schlechter, aber sich
+        verbessernder Wert ist fuer Maerkte regelmaessig besser als ein guter,
+        der sich verschlechtert.</li>
+      <li><b>Revisionen und Strukturbrueche einkalkulieren.</b> BIP- und
+        Arbeitsmarktdaten werden erheblich revidiert; historische Schwellen
+        verschieben sich mit Rechnungslegung, Marktstruktur und Zinsniveau.</li>
+    </ol>
+    <p class="haftung">
+      Alle genannten Schwellenwerte sind historische Faustregeln aus ueberwiegend
+      US-Daten, keine festen Grenzen, und sie haben in den vergangenen Jahren
+      mehrfach Fehlsignale geliefert. Diese Seite stellt Kennzahlen dar. Sie ist
+      keine Anlageberatung und keine Empfehlung zu einzelnen Anlagen.
+    </p>
+  </section>
+
+</main>
+
+<footer class="fuss bahn">
+  <p>
+    Erzeugt aus <a href="https://github.com/konmetz111/economic-dashboard">konmetz111/economic-dashboard</a>.
+    Quellen je Indikator unter dem jeweiligen Graphen.
+  </p>
+  <p id="archiv-zeile"></p>
+</footer>
+
+<div class="tipp" id="tipp" role="status" aria-live="off" hidden></div>
+
+<script src="app.js" type="module"></script>
+</body>
+</html>

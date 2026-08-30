@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Rohdownloads (XLSX, TXT, CSV der Quellen) werden nicht versioniert.
+# Versioniert ist ausschliesslich data/series/, data/commentary.json und
+# data/meta.json - das ist die Uebergabe an die Website.
+data/raw/*
+!data/raw/.gitkeep
