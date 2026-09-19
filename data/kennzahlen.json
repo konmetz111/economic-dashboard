@@ -1,6 +1,6 @@
 {
- "erzeugt_utc": "2026-09-12T04:13:07Z",
- "datenstand": "2026-09-12T04:13:06Z",
+ "erzeugt_utc": "2026-09-19T04:13:12Z",
+ "datenstand": "2026-09-19T04:13:12Z",
  "hinweis": "Uebergabe von Stufe 1 an die Kommentar-Routine. Alle Zahlen sind fertig gerechnet und duerfen nicht neu berechnet werden.",
  "charts": [
   {
@@ -15,17 +15,17 @@
     {
      "name": "EUR/USD",
      "status": "ok",
-     "stand": "2026-09-04",
-     "wert": 1.1618,
+     "stand": "2026-09-11",
+     "wert": 1.1604,
      "frequenz": "taeglich",
-     "aenderung_woche": 0.002,
-     "aenderung_monat": 0.0071,
-     "aenderung_quartal": 0.0085,
-     "aenderung_jahr": -0.003,
-     "perzentil_10j": 70.2,
+     "aenderung_woche": -0.0014,
+     "aenderung_monat": 0.0064,
+     "aenderung_quartal": 0.0031,
+     "aenderung_jahr": -0.0128,
+     "perzentil_10j": 68.8,
      "min_10j": 0.9616,
      "max_10j": 1.2488,
-     "mittel_10j": 1.12414
+     "mittel_10j": 1.1242
     }
    ]
   },
@@ -41,63 +41,62 @@
     {
      "name": "Fed-Zielband, Obergrenze",
      "status": "ok",
-     "stand": "2026-09-11",
-     "wert": 3.75,
+     "stand": "2026-09-18",
+     "wert": 4.0,
      "frequenz": "taeglich",
-     "aenderung_woche": 0.0,
-     "aenderung_monat": 0.0,
-     "aenderung_quartal": 0.0,
-     "aenderung_jahr": -0.75,
-     "perzentil_10j": 61.4,
+     "aenderung_woche": 0.25,
+     "aenderung_monat": 0.25,
+     "aenderung_quartal": 0.25,
+     "aenderung_jahr": -0.25,
+     "perzentil_10j": 68.9,
      "min_10j": 0.25,
      "max_10j": 5.5,
-     "mittel_10j": 2.55899
+     "mittel_10j": 2.56536
     },
     {
      "name": "Fed-Zielband, Untergrenze",
      "status": "ok",
-     "stand": "2026-09-11",
-     "wert": 3.5,
+     "stand": "2026-09-18",
+     "wert": 3.75,
      "frequenz": "taeglich",
-     "aenderung_woche": 0.0,
-     "aenderung_monat": 0.0,
-     "aenderung_quartal": 0.0,
-     "aenderung_jahr": -0.75,
-     "perzentil_10j": 61.4,
+     "aenderung_woche": 0.25,
+     "aenderung_monat": 0.25,
+     "aenderung_quartal": 0.25,
+     "aenderung_jahr": -0.25,
+     "perzentil_10j": 68.9,
      "min_10j": 0.0,
      "max_10j": 5.25,
-     "mittel_10j": 2.30899
+     "mittel_10j": 2.31536
     },
     {
      "name": "EZB-Hauptrefinanzierungssatz",
      "status": "ok",
-     "stand": "2026-09-11",
-     "wert": 2.4,
+     "stand": "2026-09-18",
+     "wert": 2.65,
      "frequenz": "taeglich",
-     "aenderung_woche": 0.0,
-     "aenderung_monat": 0.0,
+     "aenderung_woche": 0.25,
+     "aenderung_monat": 0.25,
      "aenderung_quartal": 0.25,
-     "aenderung_jahr": 0.25,
-     "perzentil_10j": 72.9,
+     "aenderung_jahr": 0.5,
+     "perzentil_10j": 77.9,
      "min_10j": 0.0,
      "max_10j": 4.5,
-     "mittel_10j": 1.24838
+     "mittel_10j": 1.25319
     },
     {
      "name": "BoJ-Tagesgeldsatz",
-     "status": "veraltet",
-     "stand": "2026-06-01",
-     "wert": 0.841,
+     "status": "ok",
+     "stand": "2026-08-01",
+     "wert": 0.977,
      "frequenz": "monatlich",
-     "warnung": "Diese Reihe steht seit 2026-06-01 still. Der Abruf lief, aber die Quelle hat nicht aktualisiert. Der Wert ist NICHT aktuell.",
-     "aenderung_woche": 0.114,
-     "aenderung_monat": 0.114,
-     "aenderung_quartal": 0.113,
-     "aenderung_jahr": 0.364,
-     "perzentil_10j": 99.2,
+     "aenderung_woche": -0.001,
+     "aenderung_monat": -0.001,
+     "aenderung_quartal": 0.25,
+     "aenderung_jahr": 0.5,
+     "perzentil_10j": 98.3,
      "min_10j": -0.071,
-     "max_10j": 0.841,
-     "mittel_10j": 0.0646033
+     "max_10j": 0.978,
+     "mittel_10j": 0.0815702
     }
    ]
   },
@@ -113,32 +112,32 @@
     {
      "name": "Effective Fed Funds Rate",
      "status": "ok",
-     "stand": "2026-09-10",
-     "wert": 3.63,
+     "stand": "2026-09-17",
+     "wert": 3.88,
      "frequenz": "taeglich",
-     "aenderung_woche": 0.0,
-     "aenderung_monat": 0.0,
-     "aenderung_quartal": 0.01,
-     "aenderung_jahr": -0.7,
-     "perzentil_10j": 62.4,
+     "aenderung_woche": 0.25,
+     "aenderung_monat": 0.25,
+     "aenderung_quartal": 0.25,
+     "aenderung_jahr": -0.45,
+     "perzentil_10j": 70.5,
      "min_10j": 0.04,
      "max_10j": 5.33,
-     "mittel_10j": 2.4129
+     "mittel_10j": 2.41944
     },
     {
      "name": "EZB-Einlagesatz",
      "status": "ok",
-     "stand": "2026-09-11",
-     "wert": 2.25,
+     "stand": "2026-09-18",
+     "wert": 2.5,
      "frequenz": "taeglich",
-     "aenderung_woche": 0.0,
-     "aenderung_monat": 0.0,
+     "aenderung_woche": 0.25,
+     "aenderung_monat": 0.25,
      "aenderung_quartal": 0.25,
-     "aenderung_jahr": 0.25,
-     "perzentil_10j": 74.2,
+     "aenderung_jahr": 0.5,
+     "perzentil_10j": 77.9,
      "min_10j": -0.5,
      "max_10j": 4.0,
-     "mittel_10j": 0.84792
+     "mittel_10j": 0.853203
     }
    ]
   },
@@ -154,32 +153,32 @@
     {
      "name": "Realzins USA",
      "status": "ok",
-     "stand": "2026-09-10",
-     "wert": 1.18384,
+     "stand": "2026-09-17",
+     "wert": 1.43384,
      "frequenz": "taeglich",
-     "aenderung_woche": 0.0,
-     "aenderung_monat": 0.0,
-     "aenderung_quartal": 0.12963,
-     "aenderung_jahr": -0.12619,
-     "perzentil_10j": 78.6,
+     "aenderung_woche": 0.25,
+     "aenderung_monat": 0.25,
+     "aenderung_quartal": 0.36963,
+     "aenderung_jahr": 0.12381,
+     "perzentil_10j": 88.8,
      "min_10j": -6.40238,
      "max_10j": 2.09981,
-     "mittel_10j": -0.70888
+     "mittel_10j": -0.702695
     },
     {
      "name": "Realzins Euroraum",
      "status": "ok",
-     "stand": "2026-09-11",
-     "wert": -0.043883,
+     "stand": "2026-09-18",
+     "wert": 0.206117,
      "frequenz": "taeglich",
-     "aenderung_woche": 0.0,
-     "aenderung_monat": 0.0,
+     "aenderung_woche": 0.25,
+     "aenderung_monat": 0.25,
      "aenderung_quartal": 0.25,
-     "aenderung_jahr": 0.311114,
-     "perzentil_10j": 82.6,
+     "aenderung_jahr": 0.561114,
+     "perzentil_10j": 87.0,
      "min_10j": -4.7521,
      "max_10j": 1.34185,
-     "mittel_10j": -1.27346
+     "mittel_10j": -1.27105
     }
    ]
   },
@@ -195,32 +194,32 @@
     {
      "name": "USA, erwarteter Satz in einem Jahr",
      "status": "ok",
-     "stand": "2026-09-10",
-     "wert": 4.84075,
+     "stand": "2026-09-17",
+     "wert": 4.9407,
      "frequenz": "taeglich",
-     "aenderung_woche": 0.27024,
-     "aenderung_monat": 0.4304,
-     "aenderung_quartal": 0.59036,
-     "aenderung_jahr": 1.42061,
-     "perzentil_10j": 99.8,
+     "aenderung_woche": 0.09995,
+     "aenderung_monat": 0.55032,
+     "aenderung_quartal": 0.56035,
+     "aenderung_jahr": 1.50064,
+     "perzentil_10j": 99.9,
      "min_10j": 0.080009,
-     "max_10j": 4.91074,
-     "mittel_10j": 2.52208
+     "max_10j": 5.03081,
+     "mittel_10j": 2.5301
     },
     {
      "name": "Euroraum, erwarteter Satz in einem Jahr",
      "status": "ok",
-     "stand": "2026-09-10",
-     "wert": 3.27954,
+     "stand": "2026-09-17",
+     "wert": 3.32816,
      "frequenz": "taeglich",
-     "aenderung_woche": 0.25165,
-     "aenderung_monat": 0.46868,
-     "aenderung_quartal": 0.60714,
-     "aenderung_jahr": 1.35024,
-     "perzentil_10j": 100.0,
+     "aenderung_woche": 0.04862,
+     "aenderung_monat": 0.41204,
+     "aenderung_quartal": 0.6941,
+     "aenderung_jahr": 1.32636,
+     "perzentil_10j": 99.8,
      "min_10j": -1.04407,
-     "max_10j": 3.27954,
-     "mittel_10j": 0.57053
+     "max_10j": 3.4299,
+     "mittel_10j": 0.578427
     }
    ]
   },
@@ -277,32 +276,32 @@
     {
      "name": "Fed-Bilanzsumme",
      "status": "ok",
-     "stand": "2026-09-09",
-     "wert": 774.794,
+     "stand": "2026-09-16",
+     "wert": 775.476,
      "frequenz": "woechentlich",
-     "aenderung_woche": 0.392,
-     "aenderung_monat": -0.914,
-     "aenderung_quartal": 1.749,
-     "aenderung_jahr": 15.925,
-     "perzentil_10j": 50.2,
+     "aenderung_woche": 0.682,
+     "aenderung_monat": -1.541,
+     "aenderung_quartal": 1.164,
+     "aenderung_jahr": 16.16,
+     "perzentil_10j": 50.6,
      "min_10j": 432.184,
      "max_10j": 1030.53,
-     "mittel_10j": 737.007
+     "mittel_10j": 737.506
     },
     {
      "name": "Eurosystem-Bilanzsumme",
      "status": "ok",
-     "stand": "2026-09-06",
-     "wert": 513.665,
+     "stand": "2026-09-13",
+     "wert": 513.583,
      "frequenz": "woechentlich",
-     "aenderung_woche": -0.275,
-     "aenderung_monat": -2.525,
-     "aenderung_quartal": -19.473,
-     "aenderung_jahr": -15.397,
-     "perzentil_10j": 37.9,
-     "min_10j": 291.816,
+     "aenderung_woche": -0.082,
+     "aenderung_monat": -1.024,
+     "aenderung_quartal": -19.496,
+     "aenderung_jahr": -14.837,
+     "perzentil_10j": 37.7,
+     "min_10j": 293.0,
      "max_10j": 767.692,
-     "mittel_10j": 533.06
+     "mittel_10j": 533.485
     }
    ]
   },
@@ -318,32 +317,32 @@
     {
      "name": "USA, 10J minus 2J",
      "status": "ok",
-     "stand": "2026-09-11",
-     "wert": 0.33,
+     "stand": "2026-09-18",
+     "wert": 0.25,
      "frequenz": "taeglich",
      "aenderung_woche": -0.08,
-     "aenderung_monat": -0.15,
-     "aenderung_quartal": -0.06,
-     "aenderung_jahr": -0.16,
-     "perzentil_10j": 46.4,
+     "aenderung_monat": -0.21,
+     "aenderung_quartal": -0.02,
+     "aenderung_jahr": -0.29,
+     "perzentil_10j": 38.8,
      "min_10j": -1.08,
      "max_10j": 1.59,
-     "mittel_10j": 0.350908
+     "mittel_10j": 0.349624
     },
     {
      "name": "Eurozone, 10J-Bund minus 2J-Schatz",
      "status": "ok",
-     "stand": "2026-09-10",
-     "wert": 0.402613,
+     "stand": "2026-09-17",
+     "wert": 0.339313,
      "frequenz": "taeglich",
-     "aenderung_woche": -0.076347,
-     "aenderung_monat": -0.064778,
-     "aenderung_quartal": -0.068261,
-     "aenderung_jahr": -0.418062,
-     "perzentil_10j": 38.3,
+     "aenderung_woche": -0.0633,
+     "aenderung_monat": -0.168822,
+     "aenderung_quartal": -0.091636,
+     "aenderung_jahr": -0.440304,
+     "perzentil_10j": 33.5,
      "min_10j": -0.643889,
      "max_10j": 1.35898,
-     "mittel_10j": 0.506563
+     "mittel_10j": 0.505971
     }
    ]
   },
@@ -401,7 +400,7 @@
     {
      "name": "Euroraum (EZB Bank Lending Survey)",
      "status": "ok",
-     "stand": "2026-09-12",
+     "stand": "2026-09-19",
      "wert": 4.09701,
      "frequenz": "quartalsweise",
      "aenderung_woche": 4.09701,
@@ -427,17 +426,17 @@
     {
      "name": "Chicago Fed NFCI",
      "status": "ok",
-     "stand": "2026-09-04",
-     "wert": -0.564,
+     "stand": "2026-09-11",
+     "wert": -0.56,
      "frequenz": "woechentlich",
-     "aenderung_woche": -0.004,
-     "aenderung_monat": -0.023,
-     "aenderung_quartal": -0.056,
-     "aenderung_jahr": -0.036,
+     "aenderung_woche": -0.002,
+     "aenderung_monat": -0.018,
+     "aenderung_quartal": -0.055,
+     "aenderung_jahr": -0.034,
      "perzentil_10j": 26.6,
-     "min_10j": -0.699,
-     "max_10j": 0.313,
-     "mittel_10j": -0.459033
+     "min_10j": -0.695,
+     "max_10j": 0.305,
+     "mittel_10j": -0.457464
     }
    ]
   },
@@ -462,32 +461,32 @@
     {
      "name": "High Yield (OAS)",
      "status": "ok",
-     "stand": "2026-09-10",
+     "stand": "2026-09-17",
      "wert": 270.0,
      "frequenz": "taeglich",
-     "aenderung_woche": 5.0,
-     "aenderung_monat": -2.0,
-     "aenderung_quartal": -8.0,
-     "aenderung_jahr": -14.0,
-     "perzentil_10j": 9.8,
+     "aenderung_woche": 0.0,
+     "aenderung_monat": -5.0,
+     "aenderung_quartal": 4.0,
+     "aenderung_jahr": -9.0,
+     "perzentil_10j": 9.9,
      "min_10j": 259.0,
      "max_10j": 461.0,
-     "mittel_10j": 312.489
+     "mittel_10j": 311.783
     },
     {
      "name": "Investment Grade (OAS)",
      "status": "ok",
-     "stand": "2026-09-10",
-     "wert": 80.0,
+     "stand": "2026-09-17",
+     "wert": 78.0,
      "frequenz": "taeglich",
-     "aenderung_woche": -1.0,
-     "aenderung_monat": 1.0,
-     "aenderung_quartal": 5.0,
-     "aenderung_jahr": 1.0,
-     "perzentil_10j": 23.5,
+     "aenderung_woche": -2.0,
+     "aenderung_monat": -4.0,
+     "aenderung_quartal": 4.0,
+     "aenderung_jahr": 2.0,
+     "perzentil_10j": 13.2,
      "min_10j": 73.0,
      "max_10j": 133.0,
-     "mittel_10j": 89.8244
+     "mittel_10j": 89.5471
     }
    ]
   },
@@ -503,7 +502,7 @@
     {
      "name": "CAPE USA (S&P 500)",
      "status": "ok",
-     "stand": "2026-09-12",
+     "stand": "2026-09-19",
      "wert": 40.5758,
      "frequenz": "monatlich",
      "aenderung_woche": -0.544,
@@ -697,17 +696,17 @@
     {
      "name": "RSP / SPY",
      "status": "ok",
-     "stand": "2026-09-11",
-     "wert": 101.339,
+     "stand": "2026-09-18",
+     "wert": 100.464,
      "frequenz": "taeglich",
-     "aenderung_woche": -1.157,
-     "aenderung_monat": -1.822,
-     "aenderung_quartal": -1.515,
-     "aenderung_jahr": -2.985,
-     "perzentil_10j": 2.3,
+     "aenderung_woche": -0.875,
+     "aenderung_monat": -3.621,
+     "aenderung_quartal": -0.887,
+     "aenderung_jahr": -2.701,
+     "perzentil_10j": 1.3,
      "min_10j": 98.1219,
      "max_10j": 141.303,
-     "mittel_10j": 123.538
+     "mittel_10j": 123.464
     }
    ]
   },
@@ -732,17 +731,17 @@
     {
      "name": "VIX (S&P 500)",
      "status": "ok",
-     "stand": "2026-09-10",
-     "wert": 17.84,
+     "stand": "2026-09-17",
+     "wert": 15.44,
      "frequenz": "taeglich",
-     "aenderung_woche": 3.52,
-     "aenderung_monat": 2.56,
-     "aenderung_quartal": -1.6,
-     "aenderung_jahr": 2.49,
-     "perzentil_10j": 56.3,
+     "aenderung_woche": -2.4,
+     "aenderung_monat": -0.4,
+     "aenderung_quartal": -0.96,
+     "aenderung_jahr": -0.28,
+     "perzentil_10j": 36.9,
      "min_10j": 9.14,
      "max_10j": 82.69,
-     "mittel_10j": 18.6178
+     "mittel_10j": 18.618
     },
     {
      "name": "VSTOXX (EURO STOXX 50)",
@@ -797,17 +796,17 @@
     {
      "name": "Margin Debt, Jahresrate",
      "status": "ok",
-     "stand": "2026-07-01",
-     "wert": 38.5974,
+     "stand": "2026-08-01",
+     "wert": 37.1898,
      "frequenz": "monatlich",
-     "aenderung_woche": -10.4234,
-     "aenderung_monat": -10.4234,
-     "aenderung_quartal": -14.7468,
-     "aenderung_jahr": 12.4869,
-     "perzentil_10j": 88.4,
+     "aenderung_woche": -1.4076,
+     "aenderung_monat": -1.4076,
+     "aenderung_quartal": -16.5147,
+     "aenderung_jahr": 4.2528,
+     "perzentil_10j": 85.1,
      "min_10j": -33.3357,
      "max_10j": 71.6183,
-     "mittel_10j": 11.7838
+     "mittel_10j": 12.1184
     }
    ]
   },
@@ -869,17 +868,17 @@
     {
      "name": "Philadelphia Fed, Industrie (USA)",
      "status": "ok",
-     "stand": "2026-08-01",
-     "wert": 2.06031,
+     "stand": "2026-09-01",
+     "wert": 1.54297,
      "frequenz": "monatlich",
-     "aenderung_woche": 0.321,
-     "aenderung_monat": 0.321,
-     "aenderung_quartal": 2.5573,
-     "aenderung_jahr": 2.49845,
-     "perzentil_10j": 98.3,
-     "min_10j": -3.61604,
-     "max_10j": 2.13521,
-     "mittel_10j": 0.116578
+     "aenderung_woche": -0.5131,
+     "aenderung_monat": -0.5131,
+     "aenderung_quartal": 1.46979,
+     "aenderung_jahr": 0.978078,
+     "perzentil_10j": 94.2,
+     "min_10j": -3.61467,
+     "max_10j": 2.13089,
+     "mittel_10j": 0.128746
     },
     {
      "name": "ESI Wirtschaftsklima (Euroraum)",
@@ -911,17 +910,17 @@
     {
      "name": "USA",
      "status": "ok",
-     "stand": "2026-07-01",
-     "wert": 5.00924,
+     "stand": "2026-08-01",
+     "wert": 6.01476,
      "frequenz": "monatlich",
-     "aenderung_woche": -1.74393,
-     "aenderung_monat": -1.74393,
-     "aenderung_quartal": -0.06452,
-     "aenderung_jahr": 0.95378,
-     "perzentil_10j": 63.6,
+     "aenderung_woche": 0.98273,
+     "aenderung_monat": 0.98273,
+     "aenderung_quartal": -1.218,
+     "aenderung_jahr": 1.28074,
+     "perzentil_10j": 76.9,
      "min_10j": -19.6889,
      "max_10j": 51.85,
-     "mittel_10j": 5.50806
+     "mittel_10j": 5.54269
     },
     {
      "name": "Euroraum",
@@ -953,17 +952,17 @@
     {
      "name": "USA",
      "status": "ok",
-     "stand": "2026-07-01",
-     "wert": 1.07946,
+     "stand": "2026-08-01",
+     "wert": 1.42042,
      "frequenz": "monatlich",
-     "aenderung_woche": -0.20978,
-     "aenderung_monat": -0.20978,
-     "aenderung_quartal": -0.29692,
-     "aenderung_jahr": -0.83931,
-     "perzentil_10j": 61.2,
+     "aenderung_woche": 0.29042,
+     "aenderung_monat": 0.29042,
+     "aenderung_quartal": -0.23767,
+     "aenderung_jahr": 0.23174,
+     "perzentil_10j": 67.8,
      "min_10j": -17.3183,
      "max_10j": 16.5521,
-     "mittel_10j": 0.30932
+     "mittel_10j": 0.341451
     },
     {
      "name": "Euroraum",
@@ -1042,17 +1041,17 @@
     {
      "name": "Dollar-Index",
      "status": "ok",
-     "stand": "2026-09-11",
-     "wert": 99.12,
+     "stand": "2026-09-18",
+     "wert": 100.22,
      "frequenz": "taeglich",
-     "aenderung_woche": -0.04,
-     "aenderung_monat": -0.89,
+     "aenderung_woche": 1.1,
+     "aenderung_monat": 1.39,
      "aenderung_quartal": -0.63,
-     "aenderung_jahr": 1.58,
-     "perzentil_10j": 56.8,
+     "aenderung_jahr": 2.87,
+     "perzentil_10j": 64.3,
      "min_10j": 88.59,
      "max_10j": 114.11,
-     "mittel_10j": 98.7451
+     "mittel_10j": 98.754
     }
    ]
   },
@@ -1068,17 +1067,17 @@
     {
      "name": "Kupfer / Gold",
      "status": "ok",
-     "stand": "2026-09-11",
-     "wert": 0.00147495,
+     "stand": "2026-09-18",
+     "wert": 0.00152134,
      "frequenz": "taeglich",
-     "aenderung_woche": -1.914e-05,
-     "aenderung_monat": -1.534e-05,
-     "aenderung_quartal": -6.126e-05,
-     "aenderung_jahr": 0.00021019,
-     "perzentil_10j": 13.6,
+     "aenderung_woche": 4.639e-05,
+     "aenderung_monat": 6.697e-05,
+     "aenderung_quartal": 1.655e-05,
+     "aenderung_jahr": 0.00027508,
+     "perzentil_10j": 16.6,
      "min_10j": 0.00110926,
      "max_10j": 0.00267585,
-     "mittel_10j": 0.00193577
+     "mittel_10j": 0.00193553
     }
    ]
   },
@@ -1094,17 +1093,17 @@
     {
      "name": "Gold",
      "status": "ok",
-     "stand": "2026-09-11",
-     "wert": 4386.25,
+     "stand": "2026-09-18",
+     "wert": 4348.15,
      "frequenz": "taeglich",
-     "aenderung_woche": -29.15,
-     "aenderung_monat": -40.4,
-     "aenderung_quartal": 200.3,
-     "aenderung_jahr": 756.7,
-     "perzentil_10j": 95.0,
+     "aenderung_woche": -38.1,
+     "aenderung_monat": -112.55,
+     "aenderung_quartal": 197.25,
+     "aenderung_jahr": 704.45,
+     "perzentil_10j": 94.6,
      "min_10j": 1125.7,
      "max_10j": 5405.0,
-     "mittel_10j": 2062.06
+     "mittel_10j": 2068.05
     }
    ]
   },
@@ -1120,17 +1119,17 @@
     {
      "name": "Silber",
      "status": "ok",
-     "stand": "2026-09-11",
-     "wert": 63.84,
+     "stand": "2026-09-18",
+     "wert": 67.035,
      "frequenz": "taeglich",
-     "aenderung_woche": -2.995,
-     "aenderung_monat": -2.41,
-     "aenderung_quartal": -3.19,
-     "aenderung_jahr": 22.765,
-     "perzentil_10j": 94.0,
+     "aenderung_woche": 3.195,
+     "aenderung_monat": 3.68,
+     "aenderung_quartal": 2.37,
+     "aenderung_jahr": 25.18,
+     "perzentil_10j": 95.0,
      "min_10j": 12.005,
      "max_10j": 118.45,
-     "mittel_10j": 26.4869
+     "mittel_10j": 26.5767
     }
    ]
   },
@@ -1146,17 +1145,17 @@
     {
      "name": "Kupfer",
      "status": "ok",
-     "stand": "2026-09-11",
-     "wert": 6.4695,
+     "stand": "2026-09-18",
+     "wert": 6.615,
      "frequenz": "taeglich",
-     "aenderung_woche": -0.1275,
-     "aenderung_monat": -0.1275,
-     "aenderung_quartal": 0.039,
-     "aenderung_jahr": 1.879,
-     "perzentil_10j": 98.5,
+     "aenderung_woche": 0.1455,
+     "aenderung_monat": 0.1275,
+     "aenderung_quartal": 0.2405,
+     "aenderung_jahr": 2.074,
+     "perzentil_10j": 99.6,
      "min_10j": 2.0835,
      "max_10j": 6.8035,
-     "mittel_10j": 3.73705
+     "mittel_10j": 3.74567
     }
    ]
   },
@@ -1172,17 +1171,17 @@
     {
      "name": "Weizen",
      "status": "ok",
-     "stand": "2026-09-11",
-     "wert": 707.0,
+     "stand": "2026-09-18",
+     "wert": 714.25,
      "frequenz": "taeglich",
-     "aenderung_woche": -9.0,
-     "aenderung_monat": 54.25,
-     "aenderung_quartal": 122.5,
-     "aenderung_jahr": 204.0,
-     "perzentil_10j": 83.2,
+     "aenderung_woche": 7.25,
+     "aenderung_monat": 34.0,
+     "aenderung_quartal": 108.5,
+     "aenderung_jahr": 190.0,
+     "perzentil_10j": 83.7,
      "min_10j": 371.5,
      "max_10j": 1425.25,
-     "mittel_10j": 587.324
+     "mittel_10j": 587.989
     }
    ]
   },
@@ -1198,17 +1197,17 @@
     {
      "name": "Brent",
      "status": "ok",
-     "stand": "2026-09-09",
-     "wert": 109.51,
+     "stand": "2026-09-15",
+     "wert": 130.8,
      "frequenz": "taeglich",
-     "aenderung_woche": 11.92,
-     "aenderung_monat": 16.77,
-     "aenderung_quartal": 13.78,
-     "aenderung_jahr": 41.54,
-     "perzentil_10j": 95.9,
+     "aenderung_woche": 24.68,
+     "aenderung_monat": 38.78,
+     "aenderung_quartal": 50.3,
+     "aenderung_jahr": 62.92,
+     "perzentil_10j": 99.9,
      "min_10j": 9.12,
      "max_10j": 138.21,
-     "mittel_10j": 71.2595
+     "mittel_10j": 71.3789
     }
    ]
   },
