@@ -14,7 +14,7 @@ Muster wie im Schwesterprojekt `news-briefing`.
 | Stufe | Wo | Was | Kosten |
 |---|---|---|---|
 | 1 | GitHub Actions (`.github/workflows/update.yml`) | `build_data.py` ruft alle Reihen ab und schreibt `docs/data/chart-*.json`; `build_kennzahlen.py` rechnet daraus jede Kennzahl aus und legt `data/kennzahlen.json` als Uebergabe an | nichts, laeuft ohne Sprachmodell |
-| 2 | Claude-Code-Cloud-Routine (`prompt/kommentar-prompt.md`) | Liest `data/kennzahlen.json`, formuliert die Kommentare, schreibt `docs/data/commentary.json` zurueck und committet sie | laeuft ueber das Claude-Abo, keine API-Abrechnung |
+| 2 | Claude-Code-Cloud-Routine (`prompt/kommentar-prompt.md`) | Liest `data/kennzahlen.json`, recherchiert den Nachrichtenstand, formuliert die Kommentare, schreibt `docs/data/commentary.json` zurueck und committet sie | laeuft ueber das Claude-Abo, keine API-Abrechnung |
 | — | GitHub Pages | Liefert `docs/` als Website aus | nichts |
 
 Die Trennung ist keine Formsache, sondern der Kern des Entwurfs: **Saemtliche
@@ -22,6 +22,12 @@ Zahlen werden in Stufe 1 in Python gerechnet und dem Sprachmodell fertig
 uebergeben.** Stufe 2 formuliert nur und darf ausdruecklich nichts selbst
 rechnen. Damit kann im Kommentar keine Zahl stehen, die nicht vorher
 ausgerechnet wurde.
+
+Stufe 2 darf seit Oktober 2026 im Netz recherchieren, weil sich Ursachen und
+Folgen ohne Nachrichtenstand nicht benennen lassen. Die Grenze bleibt: Aus den
+Nachrichten kommen Ereignisse und Einordnungen, **niemals Messwerte**.
+Pressezahlen sind gerundet, veraltet oder falsch abgeschrieben, und der
+Unterschied faellt im Briefing niemandem auf.
 
 Stufe 1 schreibt zusaetzlich einen regelbasierten Grundtext in
 `commentary.json`. Faellt Stufe 2 aus, steht dort also weiterhin ein korrekter,
@@ -90,12 +96,19 @@ noetig. Ein Eintrag unter `charts:` erzeugt einen Graphen samt Erklaertext,
 Kommentar und Quellenangabe. Braucht eine Reihe eine Vorstufe - etwa den
 Indexstand, aus dem eine Jahresrate wird -, kommt diese unter `rohreihen:`.
 
-Verfuegbare `adapter`: `fred`, `ecb`, `yahoo`, `lbma`, `shiller`, `finra`,
-`sec_edgar`, `stoxx`, `berechnet`.
+Verfuegbare `adapter`: `fred`, `ecb`, `eurostat`, `oecd`, `yahoo`, `shiller`,
+`finra`, `sec_edgar`, `stoxx`, `berechnet`.
 
 Verfuegbare Formeln fuer `berechnet`: `differenz`, `jahresrate`,
 `qoq_annualisiert`, `kreditimpuls`, `zscore`, `cape_aufbau`, `quotient`,
-`quotient_prozent`, `quotient_indexiert`, `forward_1j1j`.
+`quotient_prozent`, `quotient_indexiert`, `quotient_index_ab`, `forward_1j1j`,
+`index_ab`, `linearkombination`, `durchschleifen`.
+
+Weitere Felder je Reihe: `farbe` und `farbe_dunkel` (Hexwerte je Modus),
+`strich: gestrichelt`, `frist_tage` (eigene Veraltungstoleranz, wenn der Verzug
+zur Quelle gehoert), `verfuegbar: false` mit `grund`. Je Chart zusaetzlich
+`achse: {typ: symlog, knick: 10}` fuer eine ab dem Knick gestauchte Wertachse
+und `legende_erzwingen: true`.
 
 ## Ausfallverhalten
 
@@ -173,15 +186,67 @@ brachte weitere eingestellte FRED-Reihen ans Licht. Unter anderem:
   filtert zusaetzlich jede Meldung aller Module gegen `api_key`, `token`,
   `secret` und `password`.
 
-Die fragilsten verbliebenen Abrufe sind `finra` (fester XLSX-Pfad), `shiller`
-(Spaltenanordnung in einer Excel-Datei) und `yahoo` (drosselt Zugriffe aus
-Rechenzentren, kann auf dem Actions-Runner also scheitern). Alle scheitern laut
-und sichtbar, nicht still.
+### Die Fallen, die schon zugeschnappt sind
 
-Drei EZB-Reihen laufen der Gegenwart deutlich hinterher: Kern-HVPI bis 12/2025,
-Einzelhandel und Industrieproduktion bis 09/2025. Sie werden auf der Seite als
-`veraltet` gekennzeichnet. Ob FRED frischere Spiegel dieser Eurostat-Daten hat,
-ist noch zu pruefen.
+Alle vom Typ "laeuft durch, liefert aber Falsches". Sie sind behoben; die
+Kommentare im Code erklaeren jeweils warum. Nicht rueckgaengig machen:
+
+1. **Shiller-URL nicht fest verdrahten.** Der Pfad traegt eine
+   Versionskennung. Eine alte Adresse antwortet mit HTTP 200 und einer zwei
+   Jahre alten Datei.
+2. **Yahoo nie mit `range=max` abfragen.** Die Schnittstelle verdichtet dann
+   auf Monatswerte, obwohl `interval=1d` gesetzt ist, ohne das anzuzeigen.
+3. **EZB ohne `detail=dataonly`.** Der Parameter aendert je nach Datenfluss die
+   Spaltennamen oder loest HTTP 400 aus.
+4. **SEC-Konzeptbezeichnungen altern.** Berkshires Cash-Konzept heisst seit
+   2018 anders; die alten Namen liefern klaglos eine Reihe, die 2017 endet.
+5. **Der FRED-Schluessel stand in Fehlermeldungen**, die ueber `meta.json` auf
+   der oeffentlichen Seite gelandet waeren. Wird jetzt an zwei Stellen
+   herausgefiltert.
+6. **`h_vstoxx.txt` ist seit Februar 2016 tot.** Sie laedt weiter mit HTTP 200
+   und liefert 4357 saubere Punkte - nur enden sie vor einem Jahrzehnt. Die
+   lebende Datei heisst `h_v2tx.txt` und hat ein anderes Format. Aufgefallen ist
+   es erst, als die Aktualitaetspruefung 3901 Tage Rueckstand meldete.
+7. **Die BIS-Reihe `CRDQCNAPABIS` ist ein Kreditbestand in Milliarden Yuan**,
+   keine BIP-Quote. Der daraus gerechnete "Kreditimpuls" ergab Achsenwerte um
+   15.000 statt Prozentpunkte. Richtig ist `QCNPAM770A`.
+8. **Eurostat-Filtercodes pruefen.** Der Indikator heisst `PRD`, nicht `PROD`,
+   und der Einzelhandelsumsatz `VOL_SLS`, nicht `TOVV`. Ein falscher Code
+   liefert keinen Fehler, sondern eine gueltige Struktur mit null Werten.
+   `sources/eurostat.py` prueft deshalb, dass jede Filterdimension genau eine
+   Kategorie trifft.
+9. **www.stoxx.com sendet sein Zwischenzertifikat nicht.** Windows holt es
+   selbsttaetig nach, OpenSSL und damit Python nicht - der Abruf brach
+   monatelang ab, lokal wie auf dem Runner. Das fehlende Zertifikat liegt jetzt
+   unter `scripts/certs/`; die Pruefung bleibt vollstaendig aktiv.
+
+### Fragile Stellen
+
+`finra` (fester XLSX-Pfad), `shiller` (Spaltenanordnung in einer Excel-Datei),
+`yahoo` (drosselt Zugriffe aus Rechenzentren) und `sec_edgar` (die SEC-WAF ist
+beim User-Agent eigen). Alle scheitern laut und sichtbar, nicht still.
+
+### Was dauerhaft stillsteht
+
+Das Industrievertrauen fuer den Euroraum endet im Januar 2026 - bei der OECD
+ueber FRED und bei Eurostat gleichermassen, eine dritte freie Quelle gibt es
+nicht. Die Reihe bleibt deshalb als veraltet gekennzeichnet, statt den
+Rueckstand mit einer grosszuegigen Toleranz unsichtbar zu machen.
+
+## Farben
+
+Die Farbcodes je Reihe stehen in `config/indicators.yaml` (`farbe` fuer den
+Hellmodus, `farbe_dunkel` fuer den Dunkelmodus). Rot steht fuer die USA, Blau
+fuer den Euroraum, damit die Zuordnung ueber alle Graphen gleich bleibt.
+
+Zwei Faelle brauchen Sorgfalt. Erstens Dunkelmodus: `#B31942` und `#003399`
+erreichen auf dem dunklen Grund nur 2,6 bzw. 1,6 zu 1 und sind dort kaum zu
+erkennen - deshalb die aufgehellten Varianten `#CE1D4C` und `#085AFF` im selben
+Farbton. Zweitens Hellmodus: Weizen `#F5DEB3` (1,3 zu 1) und Gold `#EFBF04`
+(1,7 zu 1) sind auf der hellen Flaeche fast unsichtbar. Statt die Farbe zu
+verfaelschen zeichnet die Website unter solche Linien eine dunklere Kontur - der
+Farbton bleibt, die Linie wird sichtbar. Die Schwelle dafuer steht in
+`docs/app.js` in `_linie`.
 
 ## Haftung
 

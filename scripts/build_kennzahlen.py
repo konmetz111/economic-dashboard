@@ -37,6 +37,7 @@ from common import DATEN, WURZEL, jetzt_utc
 
 WEBDATEN = WURZEL / "docs" / "data"
 UEBERGABE = DATEN / "kennzahlen.json"
+ARCHIV = WEBDATEN / "archiv"
 
 
 # --------------------------------------------------------------------------- #
@@ -122,10 +123,6 @@ def kennzahlen(reihe: dict) -> dict:
 # Regelbasierter Grundtext                                                     #
 # --------------------------------------------------------------------------- #
 
-def _richtung(delta: float) -> str:
-    return "unverändert" if abs(delta) < 1e-9 else ("gestiegen" if delta > 0 else "gefallen")
-
-
 def _dt(wert: float) -> str:
     """Deutsche Zahlschreibweise mit sinnvoll vielen Nachkommastellen.
 
@@ -145,65 +142,30 @@ def _dt(wert: float) -> str:
     return f"{wert:,.{stellen}f}".replace(",", " ").replace(".", ",")
 
 
-# Welcher Vergleichszeitraum zu welcher Frequenz passt. Ohne diese Zuordnung
-# stuende unter einer Quartalsreihe "gegenueber dem Vormonat", was schlicht
-# falsch ist - der Vormonatswert existiert dort gar nicht.
-VERGLEICH = {
-    "taeglich": [("aenderung_woche", "gegenüber der Vorwoche"),
-                 ("aenderung_monat", "gegenüber dem Vormonat")],
-    "woechentlich": [("aenderung_monat", "gegenüber dem Vormonat"),
-                     ("aenderung_quartal", "gegenüber dem Vorquartal")],
-    "monatlich": [("aenderung_monat", "gegenüber dem Vormonat"),
-                  ("aenderung_jahr", "gegenüber dem Vorjahr")],
-    "quartalsweise": [("aenderung_quartal", "gegenüber dem Vorquartal"),
-                      ("aenderung_jahr", "gegenüber dem Vorjahr")],
-}
 
 
 def regelbasiert(chart: dict, zahlen: list[dict]) -> str:
-    einheit = chart.get("einheit", "")
-    saetze = []
+    """Grundtext ohne Sprachmodell - bewusst karg.
 
+    Dieser Text erscheint nur, wenn die Kommentar-Routine seit dem Datenabruf
+    nicht gelaufen ist. Er zaehlt deshalb nicht die Zahlen auf, die ohnehin
+    neben dem Graphen stehen, sondern sagt, dass die Einschaetzung noch fehlt -
+    und nennt nur, was man an der Kurve nicht ablesen kann: einen Stillstand
+    der Quelle oder eine fehlende Reihe.
+    """
+    hinweise = []
     for z in zahlen:
         if z["status"] == "nicht_verfuegbar":
-            saetze.append(f"{z['name']}: nicht verfügbar. "
-                          f"{z.get('grund_der_nichtverfuegbarkeit', '')}".strip())
-            continue
-        if "wert" not in z:
-            saetze.append(f"{z['name']}: keine Daten.")
-            continue
+            hinweise.append(f"{z['name']}: nicht verfügbar. "
+                            f"{z.get('grund_der_nichtverfuegbarkeit', '')}".strip())
+        elif z.get("warnung"):
+            hinweise.append(z["warnung"])
+        elif "wert" not in z:
+            hinweise.append(f"{z['name']}: keine Daten.")
 
-        teil = f"{z['name']} steht bei {_dt(z['wert'])}"
-        # Nur knappe Einheiten in den Satz ziehen. "Index, 1. Januar 2007 = 100"
-        # mitten im Fliesstext ergibt "steht bei 773,7 Index, 1. Januar 2007 =
-        # 100 (Stand ...)" - unlesbar. Lange Angaben stehen ohnehin unter dem
-        # Titel des Graphen.
-        if einheit and len(einheit) <= 22 and "," not in einheit and "=" not in einheit:
-            teil += f" {einheit}"
-        teil += f" (Stand {z['stand']})"
-
-        for feld, bezeichnung in VERGLEICH.get(z.get("frequenz", ""), VERGLEICH["monatlich"]):
-            if z.get(feld) is not None:
-                richtung = _richtung(z[feld])
-                # Bei einem Wert, der sich nicht bewegt hat, waere "um 0,00000
-                # unverändert" nur Rauschen.
-                teil += (f", {bezeichnung} {richtung}" if richtung == "unverändert"
-                         else f", {bezeichnung} um {_dt(abs(z[feld]))} {richtung}")
-                break
-
-        if z.get("perzentil_10j") is not None:
-            teil += (f"; damit liegt der Wert über {_dt(z['perzentil_10j'])} Prozent "
-                     f"aller Stände der vergangenen zehn Jahre")
-        saetze.append(teil + ".")
-
-        if z.get("warnung"):
-            saetze.append(z["warnung"])
-
-    zweiter = ("Die Einordnung der Folgen schreibt die Cloud-Routine; bis zu "
-               "ihrem nächsten Lauf steht hier nur der Zahlenbefund. Was der "
-               "Indikator misst, steht über dem Graphen"
-               + (", seine bekannte Schwäche darunter." if chart.get("schwaeche") else "."))
-    return f"{' '.join(saetze)}\n\n{zweiter}"
+    kern = ("Die Einordnung für diese Woche steht noch aus – sie entsteht im "
+            "zweiten Lauf, der nach dem Datenabruf stattfindet.")
+    return kern + ("\n\n" + " ".join(hinweise) if hinweise else "")
 
 
 # --------------------------------------------------------------------------- #
@@ -229,7 +191,6 @@ def main() -> int:
         })
         kommentare[chart["id"]] = {
             "text": regelbasiert(chart, zahlen),
-            "erzeugt_mit": "regelbasiert",
         }
 
     UEBERGABE.parent.mkdir(parents=True, exist_ok=True)
@@ -241,13 +202,36 @@ def main() -> int:
         "charts": charts,
     }, ensure_ascii=False, indent=1), encoding="utf-8")
 
+    # Die Kommentare der Vorwoche archivieren, bevor der Grundtext sie
+    # ueberschreibt. Sonst waere die Einschaetzung jeder Woche nach dem
+    # naechsten Lauf unwiederbringlich weg - und damit auch die Moeglichkeit
+    # nachzulesen, was vorige Woche erwartet wurde und was daraus geworden ist.
+    bisher = WEBDATEN / "commentary.json"
+    if bisher.exists():
+        try:
+            alt_inhalt = json.loads(bisher.read_text(encoding="utf-8"))
+            stand = (alt_inhalt.get("datenstand") or alt_inhalt.get("erzeugt") or "")[:10]
+            # Nur archivieren, was die Routine geschrieben hat - der eigene
+            # Grundtext ist nichts, was man nachlesen will.
+            if stand and any(k.get("text") for k in (alt_inhalt.get("charts") or {}).values())                     and alt_inhalt.get("gesamtlage"):
+                ARCHIV.mkdir(parents=True, exist_ok=True)
+                (ARCHIV / f"{stand}.json").write_text(
+                    json.dumps(alt_inhalt, ensure_ascii=False, separators=(",", ":")),
+                    encoding="utf-8")
+        except (json.JSONDecodeError, OSError):
+            pass
+
     (WEBDATEN / "commentary.json").write_text(json.dumps({
         "erzeugt": jetzt_utc(),
         "datenstand": meta["erzeugt"],
         "gesamtlage": None,
-        "modell": "regelbasiert",
         "charts": kommentare,
     }, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+
+    if ARCHIV.exists():
+        verzeichnis = sorted((p.stem for p in ARCHIV.glob("*.json")
+                              if p.stem != "index"), reverse=True)
+        (ARCHIV / "index.json").write_text(json.dumps(verzeichnis), encoding="utf-8")
 
     print(f"Kennzahlen fuer {len(charts)} Graphen geschrieben "
           f"({UEBERGABE.relative_to(WURZEL)}).")

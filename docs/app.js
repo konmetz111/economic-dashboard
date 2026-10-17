@@ -27,6 +27,10 @@ const ACHSENSCHRIFT = '11px ui-monospace, SFMono-Regular, Menlo, monospace';
 const datumformat = new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "short", year: "numeric" });
 
 const charts = new Map();
+// Legendenpunkte werden beim Aufbau der Karte eingefaerbt. Beim Themenwechsel
+// zeichnen sich die Graphen neu, die Punkte aber nicht - deshalb hier merken
+// und mit umfaerben.
+const legendenPunkte = [];
 let standardFenster = "10y";
 
 /* ------------------------------------------------------------- Helfer -- */
@@ -39,9 +43,63 @@ const el = (tag, klasse, text) => {
   return knoten;
 };
 
-function farbe(index) {
+/** Farbe einer Reihe. Vorrang hat die in der Konfiguration gesetzte Farbe,
+ *  je Modus eigen; ohne Angabe greift die validierte Standardpalette. */
+function farbe(reihe) {
+  if (reihe && typeof reihe === "object") {
+    const eigen = dunkelAktiv() ? (reihe.farbeDunkel || reihe.farbe) : reihe.farbe;
+    if (eigen) return eigen;
+    return palettenfarbe(reihe.farbindex || 0);
+  }
+  return palettenfarbe(reihe || 0);
+}
+
+function palettenfarbe(index) {
   const stil = getComputedStyle(document.documentElement);
   return stil.getPropertyValue(`--serie-${(index % 8) + 1}`).trim() || "#2a78d6";
+}
+
+function dunkelAktiv() {
+  const gesetzt = document.documentElement.dataset.theme;
+  if (gesetzt === "dark") return true;
+  if (gesetzt === "light") return false;
+  return matchMedia("(prefers-color-scheme: dark)").matches;
+}
+
+/* -- Kontrast: schwache Farben bekommen eine Kontur, keine neue Farbe -- */
+
+function _rgb(hex) {
+  const h = (hex || "").replace("#", "").trim();
+  if (h.length !== 6) return null;
+  return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
+}
+
+function _leuchtkraft([r, g, b]) {
+  const f = (v) => {
+    v /= 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+}
+
+function kontrast(hexA, hexB) {
+  const a = _rgb(hexA), b = _rgb(hexB);
+  if (!a || !b) return 99;
+  const la = _leuchtkraft(a), lb = _leuchtkraft(b);
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+}
+
+/** Dunklere Fassung derselben Farbe, als Kontur unter der Linie.
+ *
+ *  Gebraucht fuer Weizen (#F5DEB3, 1,3:1 auf hellem Grund) und Gold
+ *  (#EFBF04, 1,7:1). Beide waeren ohne Kontur auf der hellen Flaeche
+ *  praktisch unsichtbar. Die Farbe selbst zu aendern waere die naheliegende,
+ *  aber falsche Loesung - Weizen soll weizenfarben bleiben.
+ */
+function abgedunkelt(hex, anteil = 0.55) {
+  const c = _rgb(hex);
+  if (!c) return hex;
+  return "#" + c.map((v) => Math.round(v * anteil).toString(16).padStart(2, "0")).join("");
 }
 
 function chrom(name) {
@@ -64,10 +122,20 @@ function formatiere(wert, einheit = "") {
   const text = new Intl.NumberFormat("de-DE", {
     minimumFractionDigits: stellen, maximumFractionDigits: stellen,
   }).format(wert);
-  return einheit ? `${text} ${einheit}` : text;
+  // Lange Einheiten wie "Index, 1.1.2007 = 100" gehoeren nicht hinter eine
+  // Zahl - sie stehen links oben an der Achse. Kurze schon: "3,23 %".
+  const kurz = einheit && einheit.length <= 12 && !einheit.includes(",");
+  return kurz ? `${text} ${einheit}` : text;
 }
 
 function alsZeit(iso) { return Date.parse(iso + "T00:00:00Z"); }
+
+/** ISO-Datum als TT.MM.JJJJ. */
+function deutschesDatum(iso) {
+  if (!iso || iso.length < 10) return iso || "";
+  const [j, m, t] = iso.slice(0, 10).split("-");
+  return `${t}.${m}.${j}`;
+}
 
 /* --------------------------------------------------------- Chartobjekt -- */
 
@@ -88,6 +156,9 @@ class Zeitreihenchart {
         name: r.name,
         status: r.status,
         farbindex: i,
+        farbe: r.farbe || null,
+        farbeDunkel: r.farbe_dunkel || r.farbe || null,
+        strich: r.strich || null,
         sichtbar: true,
         punkte: r.punkte.map(([t, w]) => [alsZeit(t), w]),
       }));
@@ -195,8 +266,13 @@ class Zeitreihenchart {
     if (this.daten.nulllinie) { unten = Math.min(unten, 0); oben = Math.max(oben, 0); }
 
     if (unten === oben) { unten -= 1; oben += 1; }
-    const luft = (oben - unten) * 0.08;
-    unten -= luft; oben += luft;
+
+    // Der Rand wird im gestauchten Raum bemessen, nicht im Datenraum - sonst
+    // waere er bei einer gestauchten Achse oben und unten ungleich gross.
+    let tUnten = this._hin(unten), tOben = this._hin(oben);
+    const luft = (tOben - tUnten) * 0.08;
+    tUnten -= luft; tOben += luft;
+    unten = this._zurueck(tUnten); oben = this._zurueck(tOben);
 
     // Achsenbeschriftung vor dem Layout festlegen, denn ihre Breite bestimmt
     // den linken Rand. Mit einem festen Rand von 56 Pixeln wurden die
@@ -205,7 +281,7 @@ class Zeitreihenchart {
     ctx.font = ACHSENSCHRIFT;
     const marken = this._wertmarken(unten, oben);
     const rand = {
-      oben: 12, rechts: 10, unten: 26,
+      oben: (this.daten.einheit || "").trim() ? 22 : 12, rechts: 10, unten: 26,
       links: Math.min(96, Math.max(40,
         Math.ceil(Math.max(...marken.map((m) => ctx.measureText(m.text).width))) + 14)),
     };
@@ -213,10 +289,11 @@ class Zeitreihenchart {
     const plotH = hoehe - rand.oben - rand.unten;
 
     const x = (t) => rand.links + ((t - von) / (bis - von)) * plotB;
-    const y = (w) => rand.oben + (1 - (w - unten) / (oben - unten)) * plotH;
+    const y = (w) => rand.oben + (1 - (this._hin(w) - tUnten) / (tOben - tUnten)) * plotH;
     this._projektion = { x, y, von, bis, unten, oben, rand, plotB, plotH };
 
     this._raster(ctx, marken, unten, oben, von, bis, rand, plotB, plotH, y, x);
+    this._einheit(ctx, rand);
     if (this.band && this.band.von.sichtbar) this._bandFlaeche(ctx, von, bis, x, y);
     for (const r of this.sichtbareReihen) this._linie(ctx, r, von, bis, x, y);
     if (this.zeiger != null) this._fadenkreuz(ctx, rand, plotH);
@@ -237,6 +314,8 @@ class Zeitreihenchart {
    *  stehen lassen.
    */
   _wertmarken(unten, oben) {
+    const gestaucht = this._achse();
+    if (gestaucht) return this._wertmarkenGestaucht(unten, oben, gestaucht.knick);
     const schritt = this._schrittweite(oben - unten);
     const stellen = schritt >= 1 ? 0 : Math.min(8, Math.ceil(-Math.log10(schritt)));
     const format = new Intl.NumberFormat("de-DE", {
@@ -249,6 +328,47 @@ class Zeitreihenchart {
       marken.push({ wert, text: format.format(wert) });
     }
     return marken.length ? marken : [{ wert: unten, text: format.format(unten) }];
+  }
+
+  /** Marken fuer die gestauchte Achse: innerhalb des Knicks gleichmaessig,
+   *  darueber in Zehnerschritten der Groessenordnung. */
+  _wertmarkenGestaucht(unten, oben, knick) {
+    const format = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 1 });
+    const kandidaten = new Set([0]);
+    const innen = this._schrittweite(knick * 2);
+    for (let w = innen; w <= knick + 1e-9; w += innen) {
+      kandidaten.add(Number(w.toFixed(6)));
+      kandidaten.add(-Number(w.toFixed(6)));
+    }
+    for (let stufe = knick * 2; stufe <= 1e6; stufe *= 10) {
+      for (const f of [1, 2, 5]) {
+        const w = stufe * f / 2;
+        if (w <= knick) continue;
+        kandidaten.add(w);
+        kandidaten.add(-w);
+      }
+    }
+    return [...kandidaten]
+      .filter((w) => w >= unten && w <= oben)
+      .sort((a, b) => a - b)
+      .map((wert) => ({ wert, text: format.format(wert) }));
+  }
+
+  /** Masseinheit links oben ueber der Wertachse.
+   *
+   *  Sie stand vorher als eigene Zeile unter der Ueberschrift. Dort bezog sie
+   *  sich auf die Karte, nicht erkennbar auf die Achse; direkt ueber den Zahlen
+   *  ist der Bezug unmittelbar. */
+  _einheit(ctx, rand) {
+    const text = (this.daten.einheit || "").trim();
+    if (!text) return;
+    ctx.save();
+    ctx.font = ACHSENSCHRIFT;
+    ctx.fillStyle = chrom("--ink-gedaempft");
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    ctx.fillText(text, 2, 1);
+    ctx.restore();
   }
 
   _raster(ctx, marken, unten, oben, von, bis, rand, plotB, plotH, y, x) {
@@ -305,6 +425,41 @@ class Zeitreihenchart {
     }
   }
 
+  /* -- Gestauchte Wertachse ----------------------------------------------
+   *
+   * Bei den Jahres- und Quartalsraten liegen die Ausschlaege von 2020 bei
+   * minus dreissig und plus fuenfunddreissig Prozent. Linear gezeichnet
+   * druecken sie alle uebrigen fuenfundzwanzig Jahre zu einer flachen Linie
+   * am Nullpunkt zusammen - man sieht die Pandemie und sonst nichts.
+   *
+   * Deshalb wird die Achse ab einem Knick (hier zehn Prozentpunkte)
+   * logarithmisch gestaucht: Bis zehn bleibt der Abstand linear, darueber
+   * ruecken die Linien mit zunehmender Groesse enger zusammen. Die Reihenfolge
+   * der Werte bleibt dabei erhalten, nur ihr Abstand aendert sich - eine
+   * Verzerrung, die am engeren Linienabstand sichtbar ist und nicht
+   * verschwiegen wird.
+   */
+  _achse() {
+    const a = this.daten.achse;
+    return a && a.typ === "symlog" ? { knick: Number(a.knick) || 10 } : null;
+  }
+
+  _hin(wert) {
+    const a = this._achse();
+    if (!a) return wert;
+    const k = a.knick, b = Math.abs(wert);
+    if (b <= k) return wert;
+    return Math.sign(wert) * (k + k * Math.log10(b / k));
+  }
+
+  _zurueck(wert) {
+    const a = this._achse();
+    if (!a) return wert;
+    const k = a.knick, b = Math.abs(wert);
+    if (b <= k) return wert;
+    return Math.sign(wert) * k * Math.pow(10, (b - k) / k);
+  }
+
   _schrittweite(spanne) {
     const roh = spanne / 5;
     const groesse = Math.pow(10, Math.floor(Math.log10(roh)));
@@ -353,7 +508,7 @@ class Zeitreihenchart {
     const u = this.ausschnitt(this.band.von, von, bis);
     if (!o.length || !u.length) return;
     ctx.save();
-    ctx.fillStyle = farbe(this.band.von.farbindex);
+    ctx.fillStyle = farbe(this.band.von);
     ctx.globalAlpha = 0.16;
     ctx.beginPath();
     o.forEach(([t, w], i) => (i ? ctx.lineTo(x(t), y(w)) : ctx.moveTo(x(t), y(w))));
@@ -365,16 +520,38 @@ class Zeitreihenchart {
   _linie(ctx, reihe, von, bis, x, y) {
     const punkte = this.ausschnitt(reihe, von, bis);
     if (punkte.length < 1) return;
+    const strich = farbe(reihe);
+    const flaeche = chrom("--flaeche");
+
+    const pfad = () => {
+      ctx.beginPath();
+      punkte.forEach(([t, w], i) => (i ? ctx.lineTo(x(t), y(w)) : ctx.moveTo(x(t), y(w))));
+      ctx.stroke();
+    };
+
     ctx.save();
-    ctx.strokeStyle = farbe(reihe.farbindex);
-    ctx.lineWidth = 2;
     ctx.lineJoin = "round";
     ctx.lineCap = "round";
-    ctx.beginPath();
-    punkte.forEach(([t, w], i) => (i ? ctx.lineTo(x(t), y(w)) : ctx.moveTo(x(t), y(w))));
-    ctx.stroke();
+
+    // Zu blasse Farben bekommen eine dunklere Kontur, damit die Linie sichtbar
+    // bleibt und der gewaehlte Farbton erhalten bleibt. Betrifft im Hellmodus
+    // Weizen und Gold.
+    if (kontrast(strich, flaeche) < 2.0) {
+      ctx.strokeStyle = abgedunkelt(strich);
+      ctx.lineWidth = 3.5;
+      if (reihe.strich === "gestrichelt") ctx.setLineDash([6, 4]);
+      pfad();
+      ctx.setLineDash([]);
+    }
+
+    ctx.strokeStyle = strich;
+    ctx.lineWidth = 2;
+    if (reihe.strich === "gestrichelt") ctx.setLineDash([6, 4]);
+    pfad();
+    ctx.setLineDash([]);
+
     if (punkte.length === 1) {
-      ctx.fillStyle = farbe(reihe.farbindex);
+      ctx.fillStyle = strich;
       ctx.beginPath(); ctx.arc(x(punkte[0][0]), y(punkte[0][1]), 3.5, 0, Math.PI * 2); ctx.fill();
     }
     ctx.restore();
@@ -396,7 +573,7 @@ class Zeitreihenchart {
       ctx.beginPath(); ctx.arc(x(treffer[0]), y(treffer[1]), 5.5, 0, Math.PI * 2);
       ctx.fillStyle = chrom("--flaeche"); ctx.fill();
       ctx.beginPath(); ctx.arc(x(treffer[0]), y(treffer[1]), 4, 0, Math.PI * 2);
-      ctx.fillStyle = farbe(r.farbindex); ctx.fill();
+      ctx.fillStyle = farbe(r); ctx.fill();
     }
     ctx.restore();
   }
@@ -471,10 +648,10 @@ class Zeitreihenchart {
     // laufenden Quartals, bei einer Tagesreihe den des Vortags am Wochenende.
     tipp.append(el("div", "tipp-datum", datumformat.format(this.zeiger)));
 
-    const zeileBauen = (farbindex, name, wert) => {
+    const zeileBauen = (quelle, name, wert) => {
       const zeile = el("div", "tipp-zeile");
       const punkt = el("span", "punkt");
-      punkt.style.background = farbe(farbindex);
+      punkt.style.background = farbe(quelle);
       zeile.append(punkt, el("span", "name", name), el("span", "wert", wert));
       tipp.append(zeile);
     };
@@ -487,14 +664,14 @@ class Zeitreihenchart {
       const u = this._letzterBis(this.band.von, this.zeiger);
       const o = this._letzterBis(this.band.bis, this.zeiger);
       if (u && o) {
-        zeileBauen(this.band.von.farbindex, this.band.name,
-                   `${formatiere(u[1])} – ${formatiere(o[1])}`);
+        zeileBauen(this.band.von, this.band.name,
+                   `${formatiere(u[1])} – ${formatiere(o[1], this.daten.einheit)}`);
       }
     }
 
     for (const { r, p } of treffer) {
       if (bandGezeigt && (r === this.band.von || r === this.band.bis)) continue;
-      zeileBauen(r.farbindex, r.name, formatiere(p[1]));
+      zeileBauen(r, r.name, formatiere(p[1], this.daten.einheit));
     }
 
     tipp.hidden = false;
@@ -514,12 +691,12 @@ class Zeitreihenchart {
 
 /* -------------------------------------------------------- Kartenaufbau -- */
 
-function standBadge(reihe) {
+function standBadge(reihe, einheit = "") {
   const punkte = reihe.punkte || [];
   if (!punkte.length) return null;
   const [tag, wert] = punkte.at(-1);
   const huelle = el("div", "stand");
-  huelle.append(el("span", "stand-wert", formatiere(wert)));
+  huelle.append(el("span", "stand-wert", formatiere(wert, einheit)));
 
   const zielzeit = alsZeit(tag) - 30 * TAG;
   const vorher = punkte.filter(([t]) => alsZeit(t) <= zielzeit).at(-1);
@@ -532,9 +709,8 @@ function standBadge(reihe) {
     // Finanzstressindex sind keine guten Nachrichten. Die Richtung sagt der
     // Pfeil, die Bewertung steht im Kommentar.
     huelle.append(el("span", "stand-delta",
-      `${pfeil} ${formatiere(Math.abs(delta))} ggü. Vormonat`));
+      `${pfeil} ${formatiere(Math.abs(delta), einheit)} ggü. Vormonat`));
   }
-  huelle.append(el("span", "stand-delta", `Stand ${tag}`));
   return huelle;
 }
 
@@ -612,12 +788,22 @@ function karteBauen(daten, kommentar) {
   anker.href = `#${daten.id}`;
   h3.append(anker);
   titel.append(h3);
-  if (daten.einheit) titel.append(el("p", "karte-einheit", daten.einheit));
+
+  // Unter der Ueberschrift steht der letzte erfolgreich abgerufene Stand. Die
+  // Masseinheit ist von hier in die Zeichenflaeche gewandert, direkt ueber die
+  // Wertachse - dort bezieht sie sich erkennbar auf die Zahlen.
+  const staende = daten.reihen
+    .map((r) => r.letztes_datum)
+    .filter(Boolean)
+    .sort();
+  if (staende.length) {
+    titel.append(el("p", "karte-stand", `Stand ${deutschesDatum(staende.at(-1))}`));
+  }
   kopf.append(titel);
 
   const ersteMitDaten = daten.reihen.find((r) => r.punkte && r.punkte.length);
   if (ersteMitDaten && daten.reihen.filter((r) => r.punkte?.length).length === 1) {
-    const badge = standBadge(ersteMitDaten);
+    const badge = standBadge(ersteMitDaten, daten.einheit);
     if (badge) kopf.append(badge);
   }
   karte.append(kopf);
@@ -666,7 +852,12 @@ function karteBauen(daten, kommentar) {
   }
 
   // Legende - ab zwei Reihen Pflicht, bei einer nennt der Titel die Reihe.
-  if (chart.sichtbareReihen.length > 1 || chart.band) {
+  // `legende_erzwingen` zeigt sie auch dann, wenn nur eine Reihe Daten hat,
+  // die zweite aber als nicht verfuegbar gekennzeichnet ist: Dann soll
+  // sichtbar sein, dass dort etwas fehlt und nicht nur eines gemessen wird.
+  const fehlende = daten.reihen.filter((r) => r.status === "nicht_verfuegbar");
+  if (chart.sichtbareReihen.length > 1 || chart.band
+      || (daten.legende_erzwingen && fehlende.length)) {
     const legende = el("div", "legende");
     const eintraege = chart.band
       ? [{ name: chart.band.name, farbindex: chart.band.von.farbindex, ziel: chart.band.von }]
@@ -678,7 +869,8 @@ function karteBauen(daten, kommentar) {
       knopf.type = "button";
       knopf.setAttribute("aria-pressed", "true");
       const punkt = el("span", "punkt");
-      punkt.style.background = farbe(eintrag.farbindex);
+      punkt.style.background = farbe(eintrag.ziel);
+      legendenPunkte.push({ knoten: punkt, reihe: eintrag.ziel });
       knopf.append(punkt, el("span", "", eintrag.name));
       knopf.addEventListener("click", () => {
         const an = knopf.getAttribute("aria-pressed") === "true";
@@ -688,6 +880,19 @@ function karteBauen(daten, kommentar) {
         chart.zeichne();
       });
       legende.append(knopf);
+    }
+
+    // Nicht verfuegbare Reihen erscheinen mit, aber ausgegraut und ohne
+    // Schalter - sonst sieht die Legende aus, als gaebe es die Groesse nicht.
+    for (const r of fehlende) {
+      const marke = el("span", "legende-fehlt");
+      const punkt = el("span", "punkt");
+      const fehlfarbe = () => (dunkelAktiv() ? (r.farbe_dunkel || r.farbe) : r.farbe)
+        || chrom("--ink-gedaempft");
+      punkt.style.background = fehlfarbe();
+      legendenPunkte.push({ knoten: punkt, einfach: fehlfarbe });
+      marke.append(punkt, el("span", "", `${r.name} — nicht verfügbar`));
+      legende.append(marke);
     }
     karte.append(legende);
   }
@@ -711,7 +916,7 @@ function karteBauen(daten, kommentar) {
 
   if (kommentar?.text) {
     const block = el("div", "kommentar");
-    block.append(el("h4", "", "Bedeutung und mögliche Folgen"));
+    block.append(el("h4", "", "Mögliche Folgen"));
     block.append(absatzweise(kommentar.text));
     karte.append(block);
   }
@@ -724,9 +929,6 @@ function karteBauen(daten, kommentar) {
 
   const quelle = el("p", "quelle");
   quelle.append(el("span", "", `Quelle: ${daten.quelle || "–"}`));
-  if (kommentar?.erzeugt_mit) {
-    quelle.append(el("span", "", `Kommentar: ${kommentar.erzeugt_mit}`));
-  }
   karte.append(quelle);
 
   return karte;
@@ -750,10 +952,17 @@ function aktuellesThema() {
   return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
+function legendeEinfaerben() {
+  for (const { knoten, reihe, einfach } of legendenPunkte) {
+    knoten.style.background = einfach ? einfach() : farbe(reihe);
+  }
+}
+
 function themaSetzen(wert) {
   document.documentElement.dataset.theme = wert;
   try { localStorage.setItem("briefing-thema", wert); } catch {}
   $("#thema-text").textContent = wert === "dark" ? "Hell" : "Dunkel";
+  legendeEinfaerben();
   for (const c of charts.values()) c.zeichne();
 }
 
@@ -804,12 +1013,11 @@ async function start() {
   $("#seitenuntertitel").textContent = meta.untertitel;
   $("#meta-datenstand").textContent = meta.erzeugt.replace("T", " ").replace("Z", " UTC");
   // Die Kommentare entstehen in einem zweiten Lauf, der nach dem Datenabruf
-  // stattfindet. Bleibt er aus, stuenden hier die Texte der Vorwoche unter
-  // Zahlen dieser Woche - ohne dass man es saehe. Deshalb der Abgleich.
+  // stattfindet. Bleibt er aus, stuenden die Texte der Vorwoche unter den
+  // Zahlen dieser Woche - ohne dass man es saehe. Deshalb der Abgleich; die
+  // Herkunft des Kommentars selbst wird bewusst nicht ausgewiesen.
   const kommentarVeraltet =
     kommentare.datenstand && kommentare.datenstand !== meta.erzeugt;
-  $("#meta-modell").textContent =
-    (kommentare.modell || "–") + (kommentarVeraltet ? " · älter als die Daten" : "");
   $("#meta-umfang").textContent =
     `${meta.charts.length} Graphen, ${meta.charts.reduce((s, c) => s + c.reihen.length, 0)} Reihen`;
   document.title = meta.titel;
@@ -818,8 +1026,8 @@ async function start() {
     $("#lage").hidden = false;
     $("#lage-text").append(absatzweise(kommentare.gesamtlage));
     $("#lage-fuss").textContent =
-      `Erzeugt ${kommentare.erzeugt?.replace("T", " ").replace("Z", " UTC")} mit ${kommentare.modell}. ` +
-      `Sämtliche Zahlen darin stammen aus den unten stehenden Reihen.`;
+      `Erzeugt ${kommentare.erzeugt?.replace("T", " ").replace("Z", " UTC")}.` +
+      (kommentarVeraltet ? " Älter als der Datenstand." : "");
   }
 
   warnungen(meta);
@@ -966,6 +1174,7 @@ matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
   const gesetzt = document.documentElement.dataset.theme;
   if (gesetzt === "dark" || gesetzt === "light") return;
   $("#thema-text").textContent = aktuellesThema() === "dark" ? "Hell" : "Dunkel";
+  legendeEinfaerben();
   for (const c of charts.values()) c.zeichne();
 });
 

@@ -57,7 +57,7 @@ def abrufen(key: str, args: dict) -> Reihe:
         if kurs is None:
             continue
         tag = datetime.fromtimestamp(zeit, tz=timezone.utc).date().isoformat()
-        reihe.punkte.append((tag, float(kurs)))
+        reihe.punkte.append((tag, float(kurs) * float(args.get("faktor", 1.0))))
 
     if not reihe.punkte:
         raise RuntimeError(f"Yahoo lieferte fuer '{symbol}' nur leere Kurse")

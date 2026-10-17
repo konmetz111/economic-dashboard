@@ -86,5 +86,5 @@ def abrufen(key: str, args: dict) -> Reihe:
         tag = _tag(zeile[0])
         wert = zahl(zeile[spalte_debit])
         if tag and wert is not None:
-            reihe.punkte.append((tag, wert))
+            reihe.punkte.append((tag, wert * float(args.get("faktor", 1.0))))
     return reihe

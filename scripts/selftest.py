@@ -26,9 +26,11 @@ from common import WURZEL
 from sources import MODULE, hole_reihe
 
 VERWEISE = ("basis", "minuend", "subtrahend", "zaehler", "nenner", "kurz", "lang")
+VERWEISLISTEN = ("glieder",)
 FORMELN = {"differenz", "jahresrate", "qoq_annualisiert", "kreditimpuls", "zscore",
            "cape_aufbau", "quotient", "quotient_prozent", "quotient_indexiert",
-           "forward_1j1j", "index_ab"}
+           "forward_1j1j", "index_ab", "linearkombination", "durchschleifen",
+           "quotient_index_ab"}
 
 # Ab wann eine Reihe auffaellig alt ist, nach erkannter Frequenz. Nur ein
 # Hinweis im Test, kein Fehler - manche Statistiken erscheinen nun einmal spaet.
@@ -80,6 +82,11 @@ def konfig_pruefen(konf: dict) -> list[str]:
                     if feld in args and args[feld] not in alle_keys:
                         fehler.append(f"{r['key']}: Verweis '{feld}: {args[feld]}' "
                                       f"zeigt ins Leere")
+                for feld in VERWEISLISTEN:
+                    for ziel in (args.get(feld) or []):
+                        if ziel not in alle_keys:
+                            fehler.append(f"{r['key']}: Verweis '{feld}: {ziel}' "
+                                          f"zeigt ins Leere")
             elif r["adapter"] not in MODULE:
                 fehler.append(f"{r['key']}: unbekannter Adapter '{r['adapter']}'")
 

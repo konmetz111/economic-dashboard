@@ -27,6 +27,7 @@ import yaml
 import common
 from common import (DATEN, REIHEN, WURZEL, Reihe, cape_aufbau, differenz,
                     fehlerreihe, index_ab, indexiert, jahresrate, jetzt_utc,
+                    linearkombination,
                     kreditimpuls, mit_bestand_verschmelzen, forward_1j1j,
                     qoq_annualisiert, quotient, reihe_laden, reihe_speichern,
                     zscore)
@@ -57,6 +58,7 @@ def konfiguration() -> dict:
 
 # Felder in `args`, die auf eine andere Reihe zeigen statt einen Wert zu setzen.
 VERWEISE = ("basis", "minuend", "subtrahend", "zaehler", "nenner", "kurz", "lang")
+VERWEISLISTEN = ("glieder",)
 
 
 def abzurufende(konf: dict, nur: set[str] | None) -> dict[str, dict]:
@@ -89,6 +91,8 @@ def abzurufende(konf: dict, nur: set[str] | None) -> dict[str, dict]:
             if reihe.get("adapter") == "berechnet":
                 args = reihe.get("args", {})
                 benoetigt.update(args[f] for f in VERWEISE if f in args)
+                for feld in VERWEISLISTEN:
+                    benoetigt.update(args.get(feld) or [])
             else:
                 benoetigt.add(reihe["key"])
 
@@ -182,6 +186,32 @@ def berechnen(key: str, args: dict, vorrat: dict[str, Reihe]) -> Reihe:
             return fehlerreihe(key, "Basisreihe fehlt")
         return index_ab(basis, key, args["datum"])
 
+    if formel == "linearkombination":
+        namen = args["glieder"]
+        gewichte = args.get("gewichte") or [1.0] * len(namen)
+        glieder = []
+        for name, gewicht in zip(namen, gewichte):
+            reihe = vorrat.get(name)
+            if not reihe or reihe.leer:
+                return fehlerreihe(key, f"Eingangsreihe '{name}' fehlt oder ist leer")
+            glieder.append((reihe, float(gewicht)))
+        return linearkombination(glieder, key, float(args.get("faktor", 1.0)))
+
+    if formel == "durchschleifen":
+        # Eine Rohreihe unveraendert als Chartreihe fuehren. Gebraucht, wenn
+        # dieselbe Reihe sowohl Eingang einer Rechnung als auch selbst ein
+        # Graph ist - der Margin-Debt-Stand etwa.
+        basis = hol("basis")
+        if not basis:
+            return fehlerreihe(key, "Basisreihe fehlt")
+        return Reihe(key=key, quelle=basis.quelle, punkte=list(basis.punkte))
+
+    if formel == "quotient_index_ab":
+        z, n = hol("zaehler"), hol("nenner")
+        if not z or not n:
+            return fehlerreihe(key, "Eingangsreihe fehlt oder ist leer")
+        return index_ab(quotient(z, n, key), key, args["datum"])
+
     if formel in ("quotient", "quotient_prozent", "quotient_indexiert"):
         z, n = hol("zaehler"), hol("nenner")
         if not z or not n:
@@ -243,12 +273,20 @@ def frequenz(reihe: Reihe) -> str:
     return "quartalsweise"
 
 
-def aktualitaet_pruefen(reihe: Reihe) -> tuple[str, str]:
-    """(status, frequenz) - kennzeichnet Reihen, die stehengeblieben sind."""
+def aktualitaet_pruefen(reihe: Reihe, frist_eigen: int | None = None) -> tuple[str, str]:
+    """(status, frequenz) - kennzeichnet Reihen, die stehengeblieben sind.
+
+    `frist_eigen` stammt aus dem Feld `frist_tage` der Reihe in der
+    Konfiguration und gilt vor der Frequenzregel. Gebraucht fuer Reihen, deren
+    Verzug zur Quelle gehoert: Shiller veroeffentlicht die Unternehmensgewinne
+    mit rund vier Monaten Abstand, die BIS ihre Kreditdaten mit noch mehr. Eine
+    Warnung, die jede Woche erscheint und jede Woche folgenlos ist, macht die
+    uebrigen Warnungen wertlos.
+    """
     freq = frequenz(reihe)
     if reihe.status == "fehler" or reihe.leer:
         return reihe.status, freq
-    frist = FRIST_TAGE.get(freq)
+    frist = frist_eigen if frist_eigen else FRIST_TAGE.get(freq)
     if frist is None:
         return "ok", freq
     alter = (date.today() - date.fromisoformat(reihe.letztes_datum)).days
@@ -343,6 +381,8 @@ def schreiben(konf: dict, vorrat: dict[str, Reihe], nur: set[str] | None) -> dic
             "nulllinie": bool(chart.get("nulllinie")),
             "schwellen": chart.get("schwellen", []),
             "band": chart.get("band"),
+            "achse": chart.get("achse"),
+            "legende_erzwingen": bool(chart.get("legende_erzwingen")),
             "reihen": [],
         }
 
@@ -351,9 +391,14 @@ def schreiben(konf: dict, vorrat: dict[str, Reihe], nur: set[str] | None) -> dic
             eintrag = {
                 "key": key,
                 "name": beschreibung["name"],
-                "achse": beschreibung.get("achse", "links"),
                 "hinweis": beschreibung.get("hinweis"),
                 "aufbauend": bool(beschreibung.get("aufbauend")),
+                # Farbe und Strichart gehoeren zur Reihe, nicht zu ihrem Rang:
+                # Wird eine Reihe ueber die Legende abgeschaltet, behalten die
+                # uebrigen ihre Farbe.
+                "farbe": beschreibung.get("farbe"),
+                "farbe_dunkel": beschreibung.get("farbe_dunkel") or beschreibung.get("farbe"),
+                "strich": beschreibung.get("strich"),
             }
 
             if beschreibung.get("verfuegbar") is False:
@@ -364,7 +409,7 @@ def schreiben(konf: dict, vorrat: dict[str, Reihe], nur: set[str] | None) -> dic
                 continue
 
             reihe = vorrat.get(key) or fehlerreihe(key, "Reihe wurde nicht abgerufen")
-            status, freq = aktualitaet_pruefen(reihe)
+            status, freq = aktualitaet_pruefen(reihe, beschreibung.get('frist_tage'))
             eintrag |= {
                 "status": status,
                 "fehler": reihe.fehler,
@@ -389,6 +434,7 @@ def schreiben(konf: dict, vorrat: dict[str, Reihe], nur: set[str] | None) -> dic
             "einheit": chart.get("einheit", ""),
             "reihen": [{"key": r["key"], "name": r["name"], "status": r["status"]}
                        for r in gebuendelt["reihen"]],
+            "titel_kurz": chart.get("titel", ""),
         })
 
     meta = {

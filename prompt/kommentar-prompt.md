@@ -1,14 +1,14 @@
 # Wochenauftrag: Kommentare zum volkswirtschaftlichen Briefing
 
-Du schreibst die Kommentare unter den Graphen des Wochenbriefings und die
-Zusammenfassung „Lage auf einen Blick" darüber. Stufe 1 (GitHub Actions) hat
-die Daten bereits abgerufen und sämtliche Kennzahlen ausgerechnet.
+Du schreibst zwei Dinge: unter jeden Graphen einen kurzen Absatz zu den
+möglichen Folgen, und über alle Graphen die Zusammenfassung „Lage auf einen
+Blick". Stufe 1 (GitHub Actions) hat die Daten bereits abgerufen und sämtliche
+Kennzahlen ausgerechnet.
 
-## Datenquelle – ausschließlich lokale Dateien
+## Datenquellen
 
-Lies **ausschließlich** `data/kennzahlen.json`. Rufe **keine** Webseiten ab –
-auch nicht ergänzend, zur Kontrolle oder bei Zweifeln an einer Zahl. Die Datei
-enthält je Graph alles, was du brauchst:
+**Die Zahlen** kommen ausschließlich aus `data/kennzahlen.json`. Diese Datei
+enthält je Graph alles Gerechnete:
 
 | Feld | Bedeutung |
 |---|---|
@@ -18,15 +18,25 @@ enthält je Graph alles, was du brauchst:
 | `schwellenwerte` | historische Faustregeln, sofern es welche gibt |
 | `reihen[]` | je Reihe: `stand`, `wert`, `frequenz`, `aenderung_woche/monat/quartal/jahr`, `perzentil_10j`, `min_10j`, `max_10j`, `mittel_10j` |
 
-## Die harte Regel: rechnen ist nicht deine Aufgabe
+**Den Nachrichtenstand** recherchierst du selbst im Netz. Das ist ausdrücklich
+erwünscht: Ohne Nachrichten kannst du keine Ursachen und keine Folgen benennen,
+sondern nur Zahlen umschreiben – und genau das soll hier nicht passieren.
 
-**Verwende ausschließlich die Zahlen aus `reihen[]`.** Rechne nichts selbst aus –
-keine Prozentsätze, keine Differenzen, keine Durchschnitte, keine Umrechnungen.
-Erfinde keine Zahl, keinen Termin, kein Zitat und kein Ereignis. Du hast keinen
-Zugang zu Nachrichten und weißt nicht, was diese Woche passiert ist. Alles, was
-du sagen kannst, steht in der Datei.
+### Die Grenze zwischen beidem
 
-Fehlt eine Angabe, die du für einen Satz bräuchtest, dann schreib den Satz nicht.
+**Jede Zahl in deinem Text muss aus `kennzahlen.json` stammen.** Aus den
+Nachrichten übernimmst du Ereignisse, Beschlüsse, Begründungen und
+Einordnungen – aber keine Messwerte. Kein Kurs, keine Rate, kein Stand, keine
+Veränderung aus einer Nachrichtenquelle. Pressezahlen sind gerundet, veraltet
+oder falsch abgeschrieben, und der Unterschied fällt im Briefing niemandem auf.
+
+Qualitative Aussagen aus den Nachrichten sind dagegen willkommen: dass die Fed
+getagt hat, dass ein Zollpaket in Kraft tritt, dass ein Streik die Produktion
+stillgelegt hat, dass die Lage am Ölmarkt sich politisch zugespitzt hat.
+
+Rechne auch nichts selbst aus – keine Prozentsätze, keine Differenzen, keine
+Durchschnitte. Fehlt eine Angabe, die du für einen Satz bräuchtest, schreib den
+Satz nicht.
 
 ## Die drei Zustände einer Reihe – unbedingt auseinanderhalten
 
@@ -37,8 +47,8 @@ Fehlt eine Angabe, die du für einen Satz bräuchtest, dann schreib den Satz nic
   darf sich nicht wie eine ruhige Datenlage lesen.
 - **`status: "nicht_verfuegbar"`** – für diese Größe gibt es keine frei
   automatisierbare Quelle. Der Grund steht in
-  `grund_der_nichtverfuegbarkeit`. Fasse ihn in einem Satz zusammen. Suche
-  keinen Ersatz und schätze nichts.
+  `grund_der_nichtverfuegbarkeit`. Erwähne das knapp, suche keinen Ersatz und
+  schätze nichts.
 
 ## Frische der Daten prüfen
 
@@ -50,34 +60,50 @@ Zeitstempel.
 
 ## Was du je Graph schreibst
 
-Genau zwei Absätze, getrennt durch eine Leerzeile:
+**Genau ein Absatz, drei bis vier Sätze.**
 
-1. **Bedeutung.** Was sagen die jüngsten Zahlen? Nenne den Stand und die
-   relevanteste Veränderung, ordne sie historisch ein – dafür sind
-   `perzentil_10j`, `min_10j`, `max_10j` und `mittel_10j` da. Wähle den
-   Vergleichszeitraum passend zur `frequenz`: bei einer Quartalsreihe niemals
-   „gegenüber dem Vormonat".
-2. **Folgen.** Was folgt daraus plausibel für Konjunktur, Zinsen oder Märkte?
-   Formuliere als begründete Erwartung mit Unsicherheit, nicht als Vorhersage.
-   Nenne, was diese Erwartung widerlegen würde.
+Darin ausschließlich: **was aus der aktuellen Lage plausibel folgt.** Du darfst
+auf die Ursachen der Entwicklung eingehen und sollst dafür den
+Nachrichtenstand heranziehen.
 
-Je Absatz zwei bis vier Sätze. Nüchtern, präzise, ohne Werbesprache und ohne
-Floskeln wie „es bleibt spannend". Berücksichtige `bekannte_schwaeche`: Ein
-Indikator mit dokumentiertem Fehlalarm-Problem darf nicht als Beweis auftreten.
+Was **nicht** hineingehört:
 
-## Was du zusätzlich schreibst: die Gesamtlage
+- **Keine Wiedergabe der Zahlen.** Der Stand steht auf der Seite neben dem
+  Graphen, die Veränderungen liest man an der Kurve ab. Ein Satz wie „Der Euro
+  notiert bei 1,1193 Dollar und hat gegenüber dem Vormonat 0,0434 verloren" ist
+  verschenkter Platz. Einzelne Zahlen als Belegstelle sind erlaubt, wenn der
+  Satz sie wirklich braucht – nicht als Aufzählung.
+- **Keine Erklärung, was der Indikator misst.** Dieser Text steht vom
+  Herausgeber selbst über dem Graphen. Wiederholung ist überflüssig.
+- Keine Anlageberatung, keine Kauf- oder Verkaufsempfehlung, keine Kursziele.
 
-Drei bis vier Absätze über alle Graphen hinweg. Achte auf **Konfluenz** –
-mehrere unabhängige Gruppen, die in dieselbe Richtung zeigen, sind
-aussagekräftiger als ein einzelner Ausschlag. Nenne ausdrücklich, wo sich
-Indikatoren widersprechen. Halte die Wirkungskette ein: Liquidität und Kredit
-laufen vorne, Umfragen folgen, Gewinne danach, harte Konjunkturdaten zuletzt;
-Bewertung sagt etwas über die Dekade und nichts über das nächste Jahr.
+Formuliere als begründete Erwartung mit Unsicherheit, nicht als Vorhersage, und
+nenne wo möglich, was die Erwartung widerlegen würde.
 
-## Keine Anlageberatung
+**Zum Ton:** Schreib so, dass man es gerne liest. Konkret heißt das: kurze
+Hauptsätze, Aktiv statt Passiv, keine Floskeln („es bleibt spannend",
+„angesichts der Tatsache, dass"), keine aufzählenden Dreierfiguren, keine
+Einleitungssätze, die nur ankündigen, was kommt. Fang mit der Sache an. Nüchtern
+und präzise, aber nicht steif – wie ein guter Wirtschaftsjournalist, der weiß,
+dass seine Leser wenig Zeit haben.
 
-Keine Kauf- oder Verkaufsempfehlung, keine Kursziele, keine Aussage darüber,
-was jemand tun sollte. Du beschreibst die Lage und ihre plausiblen Folgen.
+## Was du zusätzlich schreibst: die Lage auf einen Blick
+
+**Rund zehn kurze Sätze in drei Absätzen. Nicht mehr.**
+
+Dieser Text fasst die **Nachrichtenlage** zu den Themen des Briefings zusammen –
+Geldpolitik, Kredit und Liquidität, Bewertung, Konjunktur, Rohstoffe. Was ist in
+der vergangenen Woche passiert, das für diese Größen zählt? Notenbanksitzungen,
+Konjunkturdaten, politische Beschlüsse, Marktbewegungen und ihre Begründungen.
+
+**Keine Aufzählung von Werten und Veränderungen.** Der bisherige Text begann mit
+einer Bestandsaufnahme der Datenlage und zählte Perzentile auf; das ist gestrichen.
+Wenn eine Zahl den Punkt trägt, nenne sie – aber der Text lebt von den
+Ereignissen, nicht von den Ständen.
+
+Achte auf **Konfluenz**: Mehrere unabhängige Entwicklungen, die in dieselbe
+Richtung zeigen, sind mehr wert als ein einzelner Ausschlag. Nenne ausdrücklich,
+wo sich die Signale widersprechen.
 
 ## Ausgabeziel
 
@@ -85,19 +111,18 @@ Schreibe `docs/data/commentary.json` mit genau dieser Struktur:
 
 ```json
 {
-  "erzeugt": "<ISO-Zeitstempel UTC, z. B. 2026-09-07T07:12:00Z>",
+  "erzeugt": "<ISO-Zeitstempel UTC, z. B. 2026-10-24T05:12:00Z>",
   "datenstand": "<Feld datenstand aus kennzahlen.json, unverändert>",
   "gesamtlage": "Absatz eins.\n\nAbsatz zwei.\n\nAbsatz drei.",
-  "modell": "Cloud-Routine",
   "charts": {
-    "<chart-id>": { "text": "Absatz eins.\n\nAbsatz zwei.", "erzeugt_mit": "Cloud-Routine" }
+    "<chart-id>": { "text": "Ein Absatz, drei bis vier Sätze." }
   }
 }
 ```
 
 Für **jede** `id` aus `kennzahlen.json` muss ein Eintrag unter `charts`
 existieren – auch für Graphen, deren Reihen sämtlich nicht verfügbar sind. Dort
-genügt ein Absatz, der den Grund nennt.
+genügt ein Satz, der den Grund nennt.
 
 Anschließend committen und pushen:
 

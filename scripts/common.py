@@ -41,7 +41,8 @@ def sitzung() -> requests.Session:
 
 
 def hole(url: str, *, params: dict | None = None, versuche: int = 3,
-         timeout: int = 60, headers: dict | None = None) -> requests.Response:
+         timeout: int = 60, headers: dict | None = None,
+         verify: str | bool | None = None) -> requests.Response:
     """HTTP-GET mit Wiederholung bei Netz- und 5xx-Fehlern.
 
     4xx wird nicht wiederholt: Ein 404 auf eine Reihen-ID wird beim zweiten
@@ -51,8 +52,13 @@ def hole(url: str, *, params: dict | None = None, versuche: int = 3,
     letzter = None
     for versuch in range(versuche):
         try:
+            # verify nur weitergeben, wenn gesetzt - sonst gilt die
+            # Voreinstellung von requests (certifi). Abschalten ist hier
+            # bewusst nicht vorgesehen: Ein Aufrufer uebergibt ein eigenes
+            # Pruefbuendel, niemals False.
+            zusatz = {"verify": verify} if verify else {}
             antwort = sitzung().get(url, params=params, timeout=timeout,
-                                    headers=headers or {})
+                                    headers=headers or {}, **zusatz)
             if antwort.status_code < 400:
                 return antwort
             if 400 <= antwort.status_code < 500:
@@ -232,6 +238,38 @@ def indexiert(reihe: Reihe, key: str, basis: float = 100.0) -> Reihe:
         return Reihe(key=key)
     return Reihe(key=key, quelle=f"{reihe.key} indexiert",
                  punkte=[(t, w / start * basis) for t, w in reihe.punkte])
+
+
+def linearkombination(glieder: list[tuple[Reihe, float]], key: str,
+                      faktor: float = 1.0) -> Reihe:
+    """Gewichtete Summe mehrerer Reihen auf dem Raster der ersten.
+
+    Gebraucht fuer die Netto-Liquiditaet des US-Geldsystems: Fed-Bilanz minus
+    Finanzministeriumskonto minus Reverse-Repo-Bestand. Die Reihen haben
+    verschiedene Frequenzen - die Bilanz ist woechentlich, der Repo-Bestand
+    taeglich -, deshalb bestimmt die erste Reihe das Datumsraster und von den
+    uebrigen wird jeweils der letzte bis dahin bekannte Wert genommen.
+
+    Fehlt zu einem Datum ein Summand, entfaellt der Punkt. Ihn mit Null zu
+    ersetzen waere hier grob falsch: Eine fehlende Abzugsgroesse liesse die
+    Netto-Liquiditaet um Hunderte Milliarden zu hoch erscheinen.
+    """
+    if not glieder:
+        return Reihe(key=key)
+    fuehrend, _ = glieder[0]
+    namen = " ".join(f"{g:+g}*{r.key}" for r, g in glieder)
+    aus = Reihe(key=key, quelle=f"berechnet: {namen}")
+    for tag, _wert in fuehrend.punkte:
+        summe, vollstaendig = 0.0, True
+        for reihe, gewicht in glieder:
+            teil = reihe.wert_am(tag)
+            if teil is None:
+                vollstaendig = False
+                break
+            summe += teil * gewicht
+        if vollstaendig:
+            aus.punkte.append((tag, summe * faktor))
+    return aus
 
 
 def index_ab(reihe: Reihe, key: str, datum: str, basis: float = 100.0) -> Reihe:

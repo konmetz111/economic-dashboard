@@ -28,8 +28,11 @@ committete Dateien liest.
   in Python aus und legt sie in `data/kennzahlen.json` ab. Die Routine
   formuliert ausschliesslich und darf nichts selbst rechnen. Wer diese
   Reihenfolge umdreht, holt sich erfundene Zahlen ins Briefing.
-- **Stufe 2 ruft keine Webseiten ab.** Auch nicht ergaenzend oder zur Kontrolle.
-  Sie kennt nur `data/kennzahlen.json` und hat keinen Zugang zu Nachrichten.
+- **Stufe 2 darf recherchieren, aber keine Zahlen uebernehmen.** Seit Oktober
+  2026 hat die Routine WebSearch und WebFetch, weil sich Ursachen und Folgen
+  ohne Nachrichtenstand nicht benennen lassen. Die Grenze ist scharf: Ereignisse
+  und Einordnungen ja, Messwerte nein. Diese Grenze nicht aufweichen - eine
+  gerundete Pressezahl neben den exakten Reihen faellt niemandem auf.
 - **Stufe 2 committet ausschliesslich `docs/data/commentary.json`.** Die
   Datenstaende gehoeren Stufe 1; ein Commit von `data/` oder `docs/data/chart-*`
   aus der Routine heraus wuerde den naechsten Actions-Lauf mit einem Konflikt
@@ -45,8 +48,16 @@ committete Dateien liest.
 - **Niemals zwei Y-Achsen in einem Graphen.** Reihen unterschiedlicher
   Groessenordnung werden normiert (`zscore`), indexiert oder auf zwei Graphen
   getrennt. Zwei Skalen erlauben es, jede beliebige Korrelation
-  herbeizuzeichnen. Erledigte Faelle: `stimmung` (normiert), `berkshire` und
-  `berkshire_cash` (getrennt).
+  herbeizuzeichnen. Erledigte Faelle: `stimmung` (normiert),
+  `zentralbankbilanz` (auf 2007 indexiert, weil Dollar und Euro nicht
+  vergleichbar sind).
+- **Eine gestauchte Achse ist erlaubt, eine zweite Achse nicht.** Bei den
+  Jahresraten (`bip`, `einzelhandel`, `industrieproduktion`) steht
+  `achse: {typ: symlog, knick: 10}`: bis zehn Prozentpunkte linear, darueber
+  logarithmisch gestaucht. Ohne das druecken die Ausschlaege von 2020 alle
+  uebrigen Jahre zu einer flachen Linie. Die Verzerrung ist am engeren
+  Linienabstand sichtbar und damit nicht verschwiegen - anders als bei zwei
+  Achsen, wo sie unsichtbar bleibt.
 - **Die Farbreihenfolge in `styles.css` ist keine Geschmacksfrage.** Sie stammt
   aus der validierten Referenzpalette der dataviz-Vorgaben; die Slot-Reihenfolge
   ist die Absicherung gegen Farbfehlsichtigkeit. Wer sie aendert, muss
@@ -65,26 +76,36 @@ ist dafuer in der Regel nicht anzufassen.
 - `sources/finra.py` haengt an einem festen XLSX-Pfad.
 - `sources/shiller.py` haengt an der Spaltenanordnung in `ie_data.xls`.
 - `sources/yahoo.py` haengt an einer Schnittstelle, die Zugriffe aus
-  Rechenzentren drosselt - auf dem Actions-Runner kann sie ausfallen.
+  Rechenzentren drosselt.
+- `sources/sec_edgar.py` haengt an einer WAF, die beim User-Agent eigen ist.
 
 Alle scheitern absichtlich laut mit einer Meldung, die sagt, welche Datei
 anzupassen ist. Kein stiller Rueckfall auf Naeherungswerte.
 
-## Fallen, die schon einmal zugeschnappt sind
+## Fallen, die schon zugeschnappt sind
 
-Diese vier Fehler waren im ersten Entwurf drin und sind alle vom Typ "laeuft
-durch, liefert aber Falsches". Sie sind behoben; die Kommentare im Code
-erklaeren jeweils warum. Nicht rueckgaengig machen:
+Alle vom Typ "laeuft durch, liefert aber Falsches" - die gefaehrlichste Klasse,
+weil ein gruener Lauf sie nicht zeigt. Behoben; die Kommentare im Code erklaeren
+jeweils warum. Nicht rueckgaengig machen. Der vollstaendige Katalog mit
+Begruendungen steht im README; in Kurzform:
 
-1. **Shiller-URL nicht fest verdrahten.** Der Pfad traegt eine Versionskennung.
-   Eine alte Adresse antwortet mit HTTP 200 und einer zwei Jahre alten Datei.
-2. **Yahoo nie mit `range=max` abfragen.** Die Schnittstelle verdichtet dann auf
-   Monatswerte, obwohl `interval=1d` gesetzt ist, ohne das anzuzeigen.
-   `period1`/`period2` verwenden.
-3. **EZB ohne `detail=dataonly`.** Der Parameter aendert je nach Datenfluss die
-   Spaltennamen oder loest HTTP 400 aus.
-4. **SEC-Konzeptbezeichnungen altern.** Berkshires Cash-Konzept heisst seit 2018
-   anders; die alten Namen liefern klaglos eine Reihe, die 2017 endet.
+1. Shiller-URL nicht fest verdrahten (Versionskennung im Pfad).
+2. Yahoo nie mit `range=max` (verdichtet still auf Monatswerte).
+3. EZB ohne `detail=dataonly`.
+4. SEC-Konzeptbezeichnungen altern.
+5. Der FRED-Schluessel stand in Fehlermeldungen, die auf der Website landen.
+6. `h_vstoxx.txt` ist seit Februar 2016 tot und laedt trotzdem; die lebende
+   Datei heisst `h_v2tx.txt`.
+7. `CRDQCNAPABIS` ist ein Kreditbestand in Milliarden Yuan, keine BIP-Quote.
+8. Eurostat-Filtercodes: `PRD` nicht `PROD`, `VOL_SLS` nicht `TOVV` - ein
+   falscher Code liefert eine gueltige Struktur mit null Werten.
+9. www.stoxx.com sendet sein Zwischenzertifikat nicht (liegt in `scripts/certs/`).
+
+Gemeinsamer Nenner: **Aktualitaetspruefung schlaegt Abrufpruefung.** Fuenf der
+neun Faelle haetten keinen Fehler erzeugt. Entdeckt wurden sie, weil
+`build_data.py` das Alter jeder Reihe prueft. Diese Pruefung nicht
+abschwaechen, nur weil eine Warnung unbequem ist - dafuer gibt es `frist_tage`
+je Reihe, und zwar nur dann, wenn der Verzug zur Quelle gehoert.
 
 ## Aufbauende Reihen
 
