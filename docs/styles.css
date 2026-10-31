@@ -336,6 +336,12 @@ canvas { display: block; width: 100%; height: 300px; touch-action: pan-y; cursor
 }
 .kommentar p { margin: 0 0 .7rem; color: var(--ink-2); font-size: .95rem; }
 .kommentar p:last-child { margin-bottom: 0; }
+/* Erscheint nur, wenn der Kommentar zu einem aelteren Datenstand gehoert als
+   der Graph darueber. Gedaempft, aber nicht versteckt. */
+.kommentar p.kommentar-basis {
+  font-size: .82rem; color: var(--ink-gedaempft);
+  border-left: 2px solid var(--achse); padding-left: .7rem; margin: .8rem 0 0;
+}
 
 .schwaeche {
   margin-top: .9rem; font-size: .88rem; color: var(--ink-gedaempft);

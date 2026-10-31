@@ -13,8 +13,11 @@ Dieses Skript rechnet - es formuliert nicht. Es erzeugt zwei Dateien:
                             ohne Kommentar dasteht. Die Cloud-Routine
                             ueberschreibt diese Datei anschliessend mit ihrer
                             Fassung; bleibt sie aus, steht wenigstens die
-                            nuechterne Variante da - erkennbar am Feld
-                            "erzeugt_mit".
+                            nuechterne Variante da.
+                            Umgekehrt gilt das nicht: Hat die Routine diesen
+                            Datenstand schon kommentiert, bleibt ihre Fassung
+                            unberuehrt. Der Grundtext ist der Rueckfallweg,
+                            nicht die Regel.
 
 Die Trennung ist der Kern: Saemtliche Zahlen entstehen hier in Python. Das
 Sprachmodell in Stufe 2 bekommt sie fertig und darf keine eigenen rechnen.
@@ -28,7 +31,7 @@ from __future__ import annotations
 import json
 import math
 import sys
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -38,6 +41,11 @@ from common import DATEN, WURZEL, jetzt_utc
 WEBDATEN = WURZEL / "docs" / "data"
 UEBERGABE = DATEN / "kennzahlen.json"
 ARCHIV = WEBDATEN / "archiv"
+
+# Bis zu welchem Alter eine Fassung der Kommentar-Routine auf der Seite bleibt.
+# Acht Tage, nicht sieben: Beide Laeufe verschieben sich um Stunden, und eine
+# Fassung vom vorigen Samstag soll am folgenden Samstag noch gelten.
+FRIST_KOMMENTAR_TAGE = 8
 
 
 # --------------------------------------------------------------------------- #
@@ -144,14 +152,64 @@ def _dt(wert: float) -> str:
 
 
 
+def _routinenfassung(pfad: Path) -> dict | None:
+    """Den vorhandenen Kommentar lesen - aber nur, wenn Stufe 2 ihn schrieb.
+
+    Unterscheidungsmerkmal ist die Gesamtlage. Die schreibt ausschliesslich die
+    Routine; der regelbasierte Grundtext laesst das Feld leer. Fehlende Datei,
+    kaputtes JSON oder eigener Grundtext ergeben None - dann gibt es nichts zu
+    schuetzen und nichts zu archivieren.
+    """
+    if not pfad.exists():
+        return None
+    try:
+        inhalt = json.loads(pfad.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return None
+    if not inhalt.get("gesamtlage"):
+        return None
+    if not any(k.get("text") for k in (inhalt.get("charts") or {}).values()):
+        return None
+    return inhalt
+
+
+def _ueberholt(erzeugt: str | None) -> bool:
+    """Hat die Routine seit mehr als einem Wochenzyklus nicht geschrieben?
+
+    Dann ist sie ausgefallen, und auf die Seite gehoert der Grundtext: Ein
+    ausgefallener zweiter Lauf darf sich nicht wie eine normale Woche lesen.
+    Ohne lesbaren Zeitstempel gilt die Fassung als ueberholt - im Zweifel der
+    ehrlichere Zustand.
+    """
+    try:
+        gestempelt = datetime.fromisoformat((erzeugt or "").replace("Z", "+00:00"))
+    except ValueError:
+        return True
+    if gestempelt.tzinfo is None:
+        gestempelt = gestempelt.replace(tzinfo=timezone.utc)
+    return (datetime.now(timezone.utc) - gestempelt).days >= FRIST_KOMMENTAR_TAGE
+
+
+def _archivieren(inhalt: dict) -> str | None:
+    """Eine Fassung der Routine unter ihrem Datenstand ablegen."""
+    stand = (inhalt.get("datenstand") or inhalt.get("erzeugt") or "")[:10]
+    if not stand:
+        return None
+    ARCHIV.mkdir(parents=True, exist_ok=True)
+    (ARCHIV / f"{stand}.json").write_text(
+        json.dumps(inhalt, ensure_ascii=False, separators=(",", ":")),
+        encoding="utf-8")
+    return stand
+
+
 def regelbasiert(chart: dict, zahlen: list[dict]) -> str:
     """Grundtext ohne Sprachmodell - bewusst karg.
 
-    Dieser Text erscheint nur, wenn die Kommentar-Routine seit dem Datenabruf
-    nicht gelaufen ist. Er zaehlt deshalb nicht die Zahlen auf, die ohnehin
-    neben dem Graphen stehen, sondern sagt, dass die Einschaetzung noch fehlt -
-    und nennt nur, was man an der Kurve nicht ablesen kann: einen Stillstand
-    der Quelle oder eine fehlende Reihe.
+    Dieser Text erscheint nur, wenn es keine Fassung der Routine gibt oder die
+    vorhandene ueberholt ist. Er zaehlt deshalb nicht die Zahlen auf, die
+    ohnehin neben dem Graphen stehen, sondern sagt, dass die Einschaetzung
+    fehlt - und nennt nur, was man an der Kurve nicht ablesen kann: einen
+    Stillstand der Quelle oder eine fehlende Reihe.
     """
     hinweise = []
     for z in zahlen:
@@ -163,8 +221,8 @@ def regelbasiert(chart: dict, zahlen: list[dict]) -> str:
         elif "wert" not in z:
             hinweise.append(f"{z['name']}: keine Daten.")
 
-    kern = ("Die Einordnung für diese Woche steht noch aus – sie entsteht im "
-            "zweiten Lauf, der nach dem Datenabruf stattfindet.")
+    kern = ("Für diese Woche liegt keine Einordnung vor – der zweite Lauf, "
+            "der sie schreibt, ist ausgeblieben.")
     return kern + ("\n\n" + " ".join(hinweise) if hinweise else "")
 
 
@@ -202,31 +260,54 @@ def main() -> int:
         "charts": charts,
     }, ensure_ascii=False, indent=1), encoding="utf-8")
 
-    # Die Kommentare der Vorwoche archivieren, bevor der Grundtext sie
-    # ueberschreibt. Sonst waere die Einschaetzung jeder Woche nach dem
-    # naechsten Lauf unwiederbringlich weg - und damit auch die Moeglichkeit
-    # nachzulesen, was vorige Woche erwartet wurde und was daraus geworden ist.
+    # Der Grundtext ist der Rueckfallweg, nicht die Regel: Eine vorhandene
+    # Fassung der Routine wird nicht mehr blind ueberschrieben.
+    #
+    # Dieser Fall ist nicht theoretisch. Seit Oktober 2026 stellt GitHub den
+    # Cron-Lauf von Stufe 1 um vier bis sechs Stunden zurueck; die Routine um
+    # 05:00 UTC war damit jede Woche zuerst dran. Dieses Skript hat ihre
+    # fertigen Kommentare anschliessend mit dem Grundtext zugedeckt - am 10.,
+    # 17., 24. und 31. Oktober -, und auf der Seite stand die ganze Woche
+    # "Die Einordnung steht noch aus".
+    #
+    # Ersetzt wird die Fassung nur noch in den beiden Faellen, in denen das
+    # ehrlicher ist als sie stehenzulassen: wenn es keine gibt, und wenn die
+    # Routine seit mehr als einem Wochenzyklus nicht geschrieben hat. Bleibt
+    # sie stehen, obwohl sie zu einem aelteren Datenstand gehoert, weist die
+    # Seite das an jeder Karte aus (`kommentarBasis` in app.js) - der Text
+    # selbst nennt kaum Zahlen, aber unbemerkt darf diese Verschiebung nicht
+    # bleiben.
     bisher = WEBDATEN / "commentary.json"
-    if bisher.exists():
-        try:
-            alt_inhalt = json.loads(bisher.read_text(encoding="utf-8"))
-            stand = (alt_inhalt.get("datenstand") or alt_inhalt.get("erzeugt") or "")[:10]
-            # Nur archivieren, was die Routine geschrieben hat - der eigene
-            # Grundtext ist nichts, was man nachlesen will.
-            if stand and any(k.get("text") for k in (alt_inhalt.get("charts") or {}).values())                     and alt_inhalt.get("gesamtlage"):
-                ARCHIV.mkdir(parents=True, exist_ok=True)
-                (ARCHIV / f"{stand}.json").write_text(
-                    json.dumps(alt_inhalt, ensure_ascii=False, separators=(",", ":")),
-                    encoding="utf-8")
-        except (json.JSONDecodeError, OSError):
-            pass
+    fassung = _routinenfassung(bisher)
 
-    (WEBDATEN / "commentary.json").write_text(json.dumps({
-        "erzeugt": jetzt_utc(),
-        "datenstand": meta["erzeugt"],
-        "gesamtlage": None,
-        "charts": kommentare,
-    }, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    # Gehoert die Fassung zu einem frueheren Datenstand, wird sie gesichert -
+    # unabhaengig davon, ob sie stehen bleibt. Sonst waere die Einschaetzung
+    # jeder Woche irgendwann weg und damit die Moeglichkeit nachzulesen, was
+    # erwartet wurde und was daraus geworden ist.
+    if fassung is not None and fassung.get("datenstand") != meta["erzeugt"]:
+        stand = _archivieren(fassung)
+        if stand:
+            print(f"Fassung der Routine zum Datenstand {stand} archiviert.")
+
+    if fassung is None:
+        grund = "keine Fassung der Routine vorhanden"
+    elif _ueberholt(fassung.get("erzeugt")):
+        grund = f"Fassung der Routine ueberholt (vom {fassung.get('erzeugt')})"
+    else:
+        grund = ""
+
+    if grund:
+        (WEBDATEN / "commentary.json").write_text(json.dumps({
+            "erzeugt": jetzt_utc(),
+            "datenstand": meta["erzeugt"],
+            "gesamtlage": None,
+            "charts": kommentare,
+        }, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        print(f"Grundtext in docs/data/commentary.json geschrieben: {grund}.")
+    else:
+        print(f"commentary.json bleibt unberuehrt: Fassung der Routine vom "
+              f"{fassung.get('erzeugt')}, Zahlenbasis "
+              f"{fassung.get('datenstand')}.")
 
     if ARCHIV.exists():
         verzeichnis = sorted((p.stem for p in ARCHIV.glob("*.json")
@@ -235,8 +316,6 @@ def main() -> int:
 
     print(f"Kennzahlen fuer {len(charts)} Graphen geschrieben "
           f"({UEBERGABE.relative_to(WURZEL)}).")
-    print("Regelbasierter Grundtext in docs/data/commentary.json - die "
-          "Cloud-Routine ersetzt ihn beim naechsten Lauf.")
     return 0
 
 

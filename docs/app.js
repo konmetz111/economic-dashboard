@@ -32,6 +32,14 @@ const charts = new Map();
 // und mit umfaerben.
 const legendenPunkte = [];
 let standardFenster = "10y";
+// Gesetzt, wenn die Kommentare zu einem aelteren Datenstand gehoeren als die
+// Zahlen: dann das Datum jener Zahlenbasis, sonst null. Das kommt vor, weil die
+// Kommentar-Routine zu fester Uhrzeit laeuft, der Datenabruf von GitHub aber um
+// Stunden verzoegert werden kann. Der Text bleibt dann stehen - er ist frisch
+// geschrieben und nennt ohnehin kaum Zahlen -, aber jede Karte sagt, worauf er
+// sich bezieht. Ein Kommentar, der unerkannt zur Vorwoche gehoert, waere der
+// schlimmere Fall.
+let kommentarBasis = null;
 
 /* ------------------------------------------------------------- Helfer -- */
 
@@ -918,6 +926,11 @@ function karteBauen(daten, kommentar) {
     const block = el("div", "kommentar");
     block.append(el("h4", "", "Mögliche Folgen"));
     block.append(absatzweise(kommentar.text));
+    if (kommentarBasis) {
+      block.append(el("p", "kommentar-basis",
+        `Diese Einordnung stützt sich auf die Zahlen vom ${kommentarBasis}, ` +
+        `nicht auf den oben gezeigten Stand.`));
+    }
     karte.append(block);
   }
 
@@ -1012,12 +1025,16 @@ async function start() {
   $("#seitentitel").textContent = meta.titel;
   $("#seitenuntertitel").textContent = meta.untertitel;
   $("#meta-datenstand").textContent = meta.erzeugt.replace("T", " ").replace("Z", " UTC");
-  // Die Kommentare entstehen in einem zweiten Lauf, der nach dem Datenabruf
-  // stattfindet. Bleibt er aus, stuenden die Texte der Vorwoche unter den
-  // Zahlen dieser Woche - ohne dass man es saehe. Deshalb der Abgleich; die
+  // Die Kommentare entstehen in einem zweiten Lauf. Laeuft der vor dem
+  // Datenabruf - weil GitHub den Abruf verzoegert -, stuenden die Texte zu den
+  // Zahlen der Vorwoche unter den Zahlen dieser Woche, ohne dass man es saehe.
+  // Deshalb der Abgleich: Weicht der Datenstand ab, sagt es jede Karte. Die
   // Herkunft des Kommentars selbst wird bewusst nicht ausgewiesen.
   const kommentarVeraltet =
     kommentare.datenstand && kommentare.datenstand !== meta.erzeugt;
+  if (kommentarVeraltet && kommentare.gesamtlage) {
+    kommentarBasis = deutschesDatum(kommentare.datenstand);
+  }
   $("#meta-umfang").textContent =
     `${meta.charts.length} Graphen, ${meta.charts.reduce((s, c) => s + c.reihen.length, 0)} Reihen`;
   document.title = meta.titel;
@@ -1027,7 +1044,10 @@ async function start() {
     $("#lage-text").append(absatzweise(kommentare.gesamtlage));
     $("#lage-fuss").textContent =
       `Erzeugt ${kommentare.erzeugt?.replace("T", " ").replace("Z", " UTC")}.` +
-      (kommentarVeraltet ? " Älter als der Datenstand." : "");
+      (kommentarVeraltet
+        ? ` Zahlenbasis ${deutschesDatum(kommentare.datenstand)}, nicht der ` +
+          `oben genannte Datenstand.`
+        : "");
   }
 
   warnungen(meta);

@@ -29,11 +29,12 @@ Nachrichten kommen Ereignisse und Einordnungen, **niemals Messwerte**.
 Pressezahlen sind gerundet, veraltet oder falsch abgeschrieben, und der
 Unterschied faellt im Briefing niemandem auf.
 
-Stufe 1 schreibt zusaetzlich einen regelbasierten Grundtext in
-`commentary.json`. Faellt Stufe 2 aus, steht dort also weiterhin ein korrekter,
-nur nuechterner Zahlenbefund statt einer Luecke - erkennbar am Feld
-`erzeugt_mit`, das die Website unter jedem Graphen anzeigt. Ist der Kommentar
-aelter als die Daten, vermerkt die Seite auch das im Kopf.
+Stufe 1 schreibt einen regelbasierten Grundtext in `commentary.json`, wenn dort
+keine Fassung der Routine steht oder die vorhandene aelter als acht Tage ist.
+Faellt Stufe 2 aus, steht auf der Seite also ein nuechterner Hinweis statt einer
+Luecke. Eine gueltige Fassung wird dagegen **nicht** angetastet - auch dann
+nicht, wenn sie zu einem aelteren Datenstand gehoert; in diesem Fall weist die
+Seite unter jedem Graphen aus, auf welche Zahlen der Text sich stuetzt.
 
 ## Einrichtung
 
@@ -57,12 +58,28 @@ Graphen.
 
 | Stufe | Zeit (UTC) | Was |
 |---|---|---|
-| 1 | Samstag 04:00 | Actions holt die Daten und rechnet die Kennzahlen |
+| 1 | Samstag 03:50 | Actions holt die Daten und rechnet die Kennzahlen |
 | 2 | Samstag 05:00 | Routine formuliert die Kommentare und committet sie |
 
-Die Reihenfolge ist zwingend, die Stunde dazwischen der Puffer. Wer eine Zeit
-aendert, muss die andere mitziehen - laeuft die Routine vor dem Abruf,
-kommentiert sie die Zahlen der Vorwoche.
+**Diese Reihenfolge haelt nicht.** GitHub stellt geplante Laeufe in eine
+Warteschlange: Im September startete Stufe 1 rund zwoelf Minuten nach der
+geplanten Zeit, im Oktober 2026 zwischen vier und sechs Stunden danach - also
+jede Woche nach Stufe 2. Die krumme Minute (`50 3` statt `0 4`) ist GitHubs
+eigene Empfehlung dagegen, aber keine Zusage.
+
+Deshalb setzt nichts im Ablauf diese Reihenfolge mehr voraus:
+
+- Stufe 1 ueberschreibt eine gueltige Fassung der Routine nicht mehr. Bis
+  Oktober tat sie das - vier Wochen lang stand auf der Seite der Grundtext,
+  obwohl die Kommentare fertig waren.
+- Gehoert der Kommentar zu einem aelteren Datenstand als die Zahlen, sagt das
+  jede Karte und die Fusszeile der Zusammenfassung.
+- Die Fassung der Vorwoche wandert vor jedem Ersetzen nach
+  `docs/data/archiv/<Datenstand>.json`.
+
+Wirklich deterministisch wird die Reihenfolge nur, wenn Stufe 2 nicht an einer
+Uhr haengt, sondern am Push von Stufe 1 (Webhook-Ausloeser auf das Repository)
+oder so spaet laeuft, dass der Datenlauf sicher durch ist.
 
 ## Sichtbarkeit
 
@@ -123,6 +140,10 @@ sich nie wie eine ereignislose Datenlage lesen.**
 - Schlaegt mehr als die Haelfte aller Reihen fehl, bricht der Lauf ab und
   committet nichts. Das ist dann kein Quellenproblem, sondern ein Netz- oder
   Schluesselproblem.
+- Gehoert der Kommentar zu einem aelteren Datenstand als die Zahlen - weil die
+  Routine vor dem Datenabruf lief -, bleibt er stehen, nennt aber unter jedem
+  Graphen seine Zahlenbasis. Faellt die Routine laenger als acht Tage aus,
+  ersetzt der Grundtext ihn und sagt ausdruecklich, dass die Einordnung fehlt.
 
 ## Bekannte Grenzen
 
@@ -219,6 +240,14 @@ Kommentare im Code erklaeren jeweils warum. Nicht rueckgaengig machen:
    selbsttaetig nach, OpenSSL und damit Python nicht - der Abruf brach
    monatelang ab, lokal wie auf dem Runner. Das fehlende Zertifikat liegt jetzt
    unter `scripts/certs/`; die Pruefung bleibt vollstaendig aktiv.
+10. **Stufe 1 deckte die Arbeit von Stufe 2 zu.** `build_kennzahlen.py` schrieb
+    den Grundtext bedingungslos nach `commentary.json`. Solange Actions vor der
+    Routine lief, fiel das nicht auf. Seit GitHub den Datenlauf um Stunden
+    verzoegert, lief er danach - und ueberschrieb vier Wochen in Folge die
+    fertigen Kommentare mit "Die Einordnung steht noch aus". Beide Stufen
+    meldeten dabei Erfolg; sichtbar war es nur auf der Seite. Der Fall zeigt
+    dieselbe Eigenschaft wie die Datenfallen darueber: Nicht der Abruf war
+    kaputt, sondern eine Annahme ueber die Reihenfolge.
 
 ### Fragile Stellen
 

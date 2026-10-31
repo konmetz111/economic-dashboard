@@ -50,13 +50,38 @@ Satz nicht.
   `grund_der_nichtverfuegbarkeit`. Erwähne das knapp, suche keinen Ersatz und
   schätze nichts.
 
-## Frische der Daten prüfen
+## Zuerst: Stand holen und Frische prüfen
 
-Lies zuerst `erzeugt_utc` und `datenstand` am Kopf der Datei. Liegt
-`erzeugt_utc` mehr als **acht Tage** zurück, wurde Stufe 1 nicht ausgeführt.
-Schreibe dann **keine Kommentare**, überschreibe `docs/data/commentary.json`
-nicht, und melde stattdessen, dass die Kennzahlen veraltet sind, mit dem
-Zeitstempel.
+**Hole den aktuellen Stand, bevor du etwas liest.** Stufe 1 committet, und das
+kann nach dem Klonen deiner Sitzung passiert sein:
+
+    git pull --rebase origin main
+
+Lies dann `erzeugt_utc` und `datenstand` am Kopf von `data/kennzahlen.json`.
+Liegt `erzeugt_utc` mehr als **acht Tage** zurück, wurde Stufe 1 nicht
+ausgeführt. Schreibe dann **keine Kommentare**, überschreibe
+`docs/data/commentary.json` nicht, und melde stattdessen, dass die Kennzahlen
+veraltet sind, mit dem Zeitstempel.
+
+**Setze nicht voraus, dass die Zahlen von heute sind.** Stufe 1 ist samstags
+früh geplant, aber GitHub stellt Cron-Läufe in eine Warteschlange und
+verzögerte den Abruf seit Oktober 2026 regelmäßig um vier bis sechs Stunden –
+also bis nach deinem Lauf. Der Datenstand, auf dem du arbeitest, ist dann der
+der Vorwoche, und die frischeren Zahlen kommen erst Stunden später dazu. Zwei
+Folgen:
+
+- **Beziehe dich im Text nie auf „heute" oder „die Zahlen dieser Woche".** Was
+  du schreibst, kann neben einem jüngeren Datenstand erscheinen. Die Seite weist
+  das an jeder Karte aus, aber dein Text darf keine Frische behaupten, die er
+  nicht hat. Schreibe über die Lage, nicht über den Tag.
+- **Dein Text wird nicht mehr überschrieben.** Stufe 1 lässt eine vorhandene
+  Fassung stehen, solange sie nicht älter als acht Tage ist. Es gibt also keinen
+  Grund zur Eile und keinen, einen halbfertigen Stand zu committen.
+
+Hat ein früherer Lauf **denselben** `datenstand` schon kommentiert – in
+`docs/data/commentary.json` steht dieser Datenstand und eine `gesamtlage` –,
+dann ändere nichts und committe nichts. Melde es in einem Satz. Eine zweite
+Fassung derselben Zahlen bringt niemandem etwas.
 
 ## Was du je Graph schreibst
 

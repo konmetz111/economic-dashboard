@@ -37,10 +37,11 @@ committete Dateien liest.
   Datenstaende gehoeren Stufe 1; ein Commit von `data/` oder `docs/data/chart-*`
   aus der Routine heraus wuerde den naechsten Actions-Lauf mit einem Konflikt
   begruessen.
-- **Der regelbasierte Grundtext bleibt.** `build_kennzahlen.py` schreibt bei
-  jedem Lauf eine nuechterne Fassung in `commentary.json`. Faellt die Routine
-  aus, steht dort ein korrekter Zahlenbefund statt einer Luecke. Diesen
-  Rueckfallweg nicht entfernen.
+- **Der regelbasierte Grundtext bleibt - aber er ist der Rueckfallweg, nicht
+  die Regel.** `build_kennzahlen.py` schreibt ihn nur, wenn keine Fassung der
+  Routine vorliegt oder die vorhandene aelter als acht Tage ist. Eine gueltige
+  Fassung wird nicht ueberschrieben. Diese Bedingung nicht entfernen: Ohne sie
+  deckt der verzoegerte Datenlauf jede Woche die fertigen Kommentare zu.
 - **Ein technischer Ausfall darf sich nie wie eine ereignislose Datenlage
   lesen.** Faellt eine Quelle aus, bleibt der letzte Stand stehen, aber die
   Reihe traegt `status: fehler` bzw. `veraltet` - sichtbar als Marke am Graphen
@@ -100,9 +101,13 @@ Begruendungen steht im README; in Kurzform:
 8. Eurostat-Filtercodes: `PRD` nicht `PROD`, `VOL_SLS` nicht `TOVV` - ein
    falscher Code liefert eine gueltige Struktur mit null Werten.
 9. www.stoxx.com sendet sein Zwischenzertifikat nicht (liegt in `scripts/certs/`).
+10. Stufe 1 ueberschrieb die fertigen Kommentare mit dem Grundtext, sobald sie
+    nach Stufe 2 lief - und seit Oktober 2026 laeuft sie das jede Woche. Beide
+    Laeufe meldeten Erfolg, nur die Seite zeigte vier Wochen lang "Die
+    Einordnung steht noch aus".
 
 Gemeinsamer Nenner: **Aktualitaetspruefung schlaegt Abrufpruefung.** Fuenf der
-neun Faelle haetten keinen Fehler erzeugt. Entdeckt wurden sie, weil
+neun Datenfaelle haetten keinen Fehler erzeugt. Entdeckt wurden sie, weil
 `build_data.py` das Alter jeder Reihe prueft. Diese Pruefung nicht
 abschwaechen, nur weil eine Warnung unbequem ist - dafuer gibt es `frist_tage`
 je Reihe, und zwar nur dann, wenn der Verzug zur Quelle gehoert.
@@ -119,18 +124,24 @@ nicht geloescht werden** - dort liegt dann die einzige Kopie ihrer Historie.
 
 ## Zeitplanung
 
-Beide Stufen laufen samstags, und ihre Reihenfolge ist zwingend:
+Beide Stufen laufen samstags:
 
 | Stufe | Zeit | Was |
 |---|---|---|
-| 1 | Samstag 04:00 UTC | GitHub Actions holt die Daten und schreibt `data/kennzahlen.json` |
+| 1 | Samstag 03:50 UTC | GitHub Actions holt die Daten und schreibt `data/kennzahlen.json` |
 | 2 | Samstag 05:00 UTC | Cloud-Routine liest diese Datei und schreibt `docs/data/commentary.json` |
 
-Die Stunde dazwischen ist der Puffer. Wer eine der beiden Zeiten aendert, muss
-die andere mitziehen: Laeuft die Routine vor dem Abruf, kommentiert sie die
-Zahlen der Vorwoche - und weil `commentary.json` danach trotzdem gueltig
-aussieht, faellt das nur ueber den Abgleich von `datenstand` auf, den die
-Website im Kopf anzeigt.
+**Die Reihenfolge ist nicht erzwingbar.** GitHub verzoegerte Stufe 1 im Oktober
+2026 jede Woche um vier bis sechs Stunden; Stufe 2 war damit zuerst dran. Die
+krumme Minute ist GitHubs eigene Empfehlung gegen die Warteschlange, mehr
+nicht. Nichts im Ablauf darf deshalb voraussetzen, dass die Zahlen schon da
+sind, wenn die Routine laeuft - weder `build_kennzahlen.py`, noch der Auftrag
+in `prompt/kommentar-prompt.md`, noch die Seite. Wo der Kommentar zu einem
+aelteren Datenstand gehoert, wird das angezeigt statt versteckt.
+
+Deterministisch wuerde die Reihenfolge erst durch einen Webhook-Ausloeser auf
+den Push von Stufe 1. Das ist eine Aenderung an der Cloud-Routine und damit
+nichts, was man nebenbei im Repository erledigt.
 
 Beide Cron-Zeiten sind UTC-fest. Das ist Absicht: Eine in Ortszeit gedachte
 Planung verrutscht bei der Zeitumstellung gegen die Veroeffentlichungstermine

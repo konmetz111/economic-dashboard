@@ -1,13 +1,21 @@
 name: Wochenbriefing aktualisieren
 
-# Einmal woechentlich, Samstag 04:00 UTC. Zum Zeitpunkt der Ausfuehrung sind
+# Einmal woechentlich, Samstag 03:50 UTC. Zum Zeitpunkt der Ausfuehrung sind
 # die US-Schlusskurse vom Freitag sicher verbucht und die Woche vollstaendig
 # erfasst.
 #
-# Die Stunde ist nicht frei waehlbar: Stufe 2, die Kommentar-Routine, laeuft
-# samstags um 05:00 UTC. Sie liest, was dieser Lauf schreibt. Wer diesen Cron
-# nach hinten schiebt, muss die Routine mitverschieben - sonst kommentiert sie
-# die Zahlen der Vorwoche, ohne dass es auffiele.
+# Die krumme Minute ist der Grund, warum hier nicht "0 4" steht: GitHub stellt
+# geplante Laeufe in eine gemeinsame Warteschlange, die zur runden Stunde am
+# laengsten ist, und empfiehlt deshalb ausdruecklich eine andere Minute. Dieser
+# Lauf startete im September rund zwoelf Minuten nach der geplanten Zeit, im
+# Oktober zwischen vier und sechs Stunden danach - jedes Mal nach der
+# Kommentar-Routine, die um 05:00 UTC laeuft.
+#
+# Darauf verlassen darf man sich nicht: Die Reihenfolge der beiden Stufen ist
+# nicht erzwingbar, solange beide an einer Uhr haengen. Deshalb wird sie nicht
+# mehr vorausgesetzt - build_kennzahlen.py ueberschreibt eine vorhandene
+# Fassung der Routine nicht, und die Seite weist aus, wenn ein Kommentar zu
+# einem aelteren Datenstand gehoert.
 #
 # Die Cron-Zeit ist UTC-fest. Das ist Absicht: Eine in Ortszeit gedachte
 # Planung verrutscht bei der Zeitumstellung gegen die Veroeffentlichungstermine
@@ -15,7 +23,7 @@ name: Wochenbriefing aktualisieren
 
 on:
   schedule:
-    - cron: "0 4 * * 6"
+    - cron: "50 3 * * 6"
   workflow_dispatch:
     inputs:
       nur:
@@ -55,9 +63,9 @@ jobs:
       - name: Kennzahlen rechnen und uebergeben
         # Rechnet nur. Der formulierte Kommentar entsteht in Stufe 2, einer
         # Claude-Code-Cloud-Routine, die data/kennzahlen.json liest und
-        # docs/data/commentary.json zurueckschreibt. Hier entsteht lediglich
-        # ein regelbasierter Grundtext, damit die Website zwischen den beiden
-        # Laeufen nie ohne Kommentar dasteht.
+        # docs/data/commentary.json zurueckschreibt. Hier entsteht ein
+        # regelbasierter Grundtext fuer den Fall, dass diese Fassung fehlt
+        # oder ueberholt ist - eine vorhandene wird nicht angetastet.
         if: steps.daten.outcome == 'success'
         run: python scripts/build_kennzahlen.py
 
